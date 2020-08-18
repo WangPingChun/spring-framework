@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;
 
 /**
+ * 主要使用 map 作为 alias 的缓存，并对接口 AliasRegistry 进行实现
  * Simple implementation of the {@link AliasRegistry} interface.
  * Serves as base class for
  * {@link org.springframework.beans.factory.support.BeanDefinitionRegistry}
@@ -52,6 +53,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 		Assert.hasText(name, "'name' must not be empty");
 		Assert.hasText(alias, "'alias' must not be empty");
 		synchronized (this.aliasMap) {
+			// 如果 beanName 与 alias 相同的话不记录 alias，并删除对应的 alias
 			if (alias.equals(name)) {
 				this.aliasMap.remove(alias);
 				if (logger.isDebugEnabled()) {
@@ -65,6 +67,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 						// An existing alias - no need to re-register
 						return;
 					}
+					// 如果 alias 不允许被覆盖则抛出异常
 					if (!allowAliasOverriding()) {
 						throw new IllegalStateException("Cannot define alias '" + alias + "' for name '" +
 								name + "': It is already registered for name '" + registeredName + "'.");
@@ -74,7 +77,9 @@ public class SimpleAliasRegistry implements AliasRegistry {
 								registeredName + "' with new target name '" + name + "'");
 					}
 				}
+				// 当 A->B 存在时，若再次出现 A->C->B 时候则会抛出异常
 				checkForAliasCircle(name, alias);
+				// 注册 alias
 				this.aliasMap.put(alias, name);
 				if (logger.isDebugEnabled()) {
 					logger.debug("Alias definition '" + alias + "' registered for name '" + name + "'");

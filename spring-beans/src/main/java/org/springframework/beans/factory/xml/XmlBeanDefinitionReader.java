@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
@@ -317,6 +318,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			logger.info("Loading XML bean definitions from " + encodedResource);
 		}
 
+		// 通过属性来记录已经加载的资源
 		Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
 		if (currentResources == null) {
 			currentResources = new HashSet<>(4);
@@ -327,12 +329,14 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 					"Detected cyclic loading of " + encodedResource + " - check your import definitions!");
 		}
 		try {
+			// 从 encodedResource 中获取已经封装的 Resource 对象并再次从 Resource 中获取其中的 inputStream
 			InputStream inputStream = encodedResource.getResource().getInputStream();
 			try {
 				InputSource inputSource = new InputSource(inputStream);
 				if (encodedResource.getEncoding() != null) {
 					inputSource.setEncoding(encodedResource.getEncoding());
 				}
+				// 真正进入了逻辑核心部分
 				return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
 			}
 			finally {
@@ -437,12 +441,17 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * <p>Override this method if you would like full control over the validation
 	 * mode, even when something other than {@link #VALIDATION_AUTO} was set.
 	 * @see #detectValidationMode
+	 *
+	 *
+	 * 获取对应资源的验证模式
 	 */
 	protected int getValidationModeForResource(Resource resource) {
 		int validationModeToUse = getValidationMode();
+		// 如果手动制定了验证模式则使用指定的验证模式
 		if (validationModeToUse != VALIDATION_AUTO) {
 			return validationModeToUse;
 		}
+		// 如果未指定则使用自动检测
 		int detectedMode = detectValidationMode(resource);
 		if (detectedMode != VALIDATION_AUTO) {
 			return detectedMode;
@@ -464,9 +473,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		if (resource.isOpen()) {
 			throw new BeanDefinitionStoreException(
 					"Passed-in Resource [" + resource + "] contains an open stream: " +
-					"cannot determine validation mode automatically. Either pass in a Resource " +
-					"that is able to create fresh streams, or explicitly specify the validationMode " +
-					"on your XmlBeanDefinitionReader instance.");
+							"cannot determine validation mode automatically. Either pass in a Resource " +
+							"that is able to create fresh streams, or explicitly specify the validationMode " +
+							"on your XmlBeanDefinitionReader instance.");
 		}
 
 		InputStream inputStream;
@@ -476,11 +485,12 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		catch (IOException ex) {
 			throw new BeanDefinitionStoreException(
 					"Unable to determine validation mode for [" + resource + "]: cannot open InputStream. " +
-					"Did you attempt to load directly from a SAX InputSource without specifying the " +
-					"validationMode on your XmlBeanDefinitionReader instance?", ex);
+							"Did you attempt to load directly from a SAX InputSource without specifying the " +
+							"validationMode on your XmlBeanDefinitionReader instance?", ex);
 		}
 
 		try {
+			// 委托给了专门处理类 XmlValidationModeDetector
 			return this.validationModeDetector.detectValidationMode(inputStream);
 		}
 		catch (IOException ex) {
@@ -503,9 +513,14 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
+		// 使用 DefaultBeanDefinitionDocumentReader 实例化
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
+		// 在实例化 BeanDefinitionReader 时候会将 BeanDefinitionRegistry 传入,默认使用继承自 DefaultListableBeanFactory 的
+		// 子类记录统计前 BeanDefinition 的加载个数
 		int countBefore = getRegistry().getBeanDefinitionCount();
+		// 加载及注册 bean
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
+		// 记录本次加载的 BeanDefinition 个数
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}
 

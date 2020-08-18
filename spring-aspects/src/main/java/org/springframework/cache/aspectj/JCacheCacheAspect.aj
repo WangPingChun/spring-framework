@@ -48,7 +48,7 @@ import org.springframework.cache.jcache.interceptor.JCacheAspectSupport;
 public aspect JCacheCacheAspect extends JCacheAspectSupport {
 
 	@SuppressAjWarnings("adviceDidNotMatch")
-	Object around(final Object cachedObject) : cacheMethodExecution(cachedObject) {
+		Object around(final Object cachedObject) : cacheMethodExecution(cachedObject) {
 		MethodSignature methodSignature = (MethodSignature) thisJoinPoint.getSignature();
 		Method method = methodSignature.getMethod();
 

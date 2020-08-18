@@ -61,6 +61,7 @@ public class BeanDefinitionReaderUtils {
 		bd.setParentName(parentName);
 		if (className != null) {
 			if (classLoader != null) {
+				// 如果 classLoader 不为空，则使用以传入的 classLoader 同一虚拟机加载类对象，否则只是记录 className
 				bd.setBeanClass(ClassUtils.forName(className, classLoader));
 			}
 			else {
@@ -146,10 +147,12 @@ public class BeanDefinitionReaderUtils {
 			throws BeanDefinitionStoreException {
 
 		// Register bean definition under primary name.
+		// 使用 beanName 做唯一标识注册
 		String beanName = definitionHolder.getBeanName();
 		registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());
 
 		// Register aliases for bean name, if any.
+		// 注册所有的别名
 		String[] aliases = definitionHolder.getAliases();
 		if (aliases != null) {
 			for (String alias : aliases) {

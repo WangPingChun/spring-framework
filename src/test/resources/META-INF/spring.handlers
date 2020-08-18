@@ -1,1 +1,2 @@
 http\://www.foo.com/schema/component=com.foo.ComponentNamespaceHandler
+http\://www.net4w.com/schema/user=test.customtag.MyNamespaceHandler

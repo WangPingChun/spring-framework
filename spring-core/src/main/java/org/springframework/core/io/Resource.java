@@ -73,6 +73,7 @@ public interface Resource extends InputStreamSource {
 	}
 
 	/**
+	 * 资源所代表的句柄是否被一个 stream 打开了
 	 * Indicate whether this resource represents a handle with an open stream.
 	 * If {@code true}, the InputStream cannot be read multiple times,
 	 * and must be read and closed to avoid resource leaks.
@@ -95,6 +96,7 @@ public interface Resource extends InputStreamSource {
 	}
 
 	/**
+	 * 返回资源的 URL 的句柄
 	 * Return a URL handle for this resource.
 	 * @throws IOException if the resource cannot be resolved as URL,
 	 * i.e. if the resource is not available as descriptor
@@ -102,6 +104,7 @@ public interface Resource extends InputStreamSource {
 	URL getURL() throws IOException;
 
 	/**
+	 * 返回资源的 URI 的句柄
 	 * Return a URI handle for this resource.
 	 * @throws IOException if the resource cannot be resolved as URI,
 	 * i.e. if the resource is not available as descriptor
@@ -110,6 +113,7 @@ public interface Resource extends InputStreamSource {
 	URI getURI() throws IOException;
 
 	/**
+	 * 返回资源的 File 的句柄
 	 * Return a File handle for this resource.
 	 * @throws java.io.FileNotFoundException if the resource cannot be resolved as
 	 * absolute file path, i.e. if the resource is not available in a file system

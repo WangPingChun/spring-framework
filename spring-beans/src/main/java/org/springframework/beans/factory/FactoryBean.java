@@ -19,6 +19,9 @@ package org.springframework.beans.factory;
 import org.springframework.lang.Nullable;
 
 /**
+ * 当配置文件中 <bean> 的 class 属性配置的实现类是 FactoryBean 时，通过 getBean() 方法返回的
+ * 不是 FactoryBean 本身，而是 FactoryBean#getObject() 方法返回的对象，相当于 FactoryBean#getObject()
+ * 代理了 getBean() 方法
  * Interface to be implemented by objects used within a {@link BeanFactory} which
  * are themselves factories for individual objects. If a bean implements this
  * interface, it is used as a factory for an object to expose, not directly as a
@@ -65,6 +68,9 @@ import org.springframework.lang.Nullable;
 public interface FactoryBean<T> {
 
 	/**
+	 * 返回由 FactoryBean 创建的 bean 实例，如果 isSingleton() 如果 true，则该
+	 * 实例会放到 Spring 容器中单实例缓存池中
+	 *
 	 * Return an instance (possibly shared or independent) of the object
 	 * managed by this factory.
 	 * <p>As with a {@link BeanFactory}, this allows support for both the

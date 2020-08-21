@@ -542,7 +542,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
-		// 使用 DefaultBeanDefinitionDocumentReader 实例化
+		// 使用 DefaultBeanDefinitionDocumentReader 实例化 BeanDefinitionDocumentReader 对象
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
 		// 在实例化 BeanDefinitionReader 时候会将 BeanDefinitionRegistry 传入,默认使用继承自 DefaultListableBeanFactory 的
 		// 子类记录统计前 BeanDefinition 的加载个数

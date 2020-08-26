@@ -836,18 +836,23 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 							"] with [" + beanDefinition + "]");
 				}
 			}
-			// 注册 beanDefinition
+			// 允许覆盖，直接覆盖原有的 BeanDefinition 到 beanDefinitionMap 中
 			this.beanDefinitionMap.put(beanName, beanDefinition);
 		}
 		else {
+			// 检测创建 Bean 阶段是否已经开始，如果开启了需要对 beanDefinitionMap 进行并发控制
 			if (hasBeanCreationStarted()) {
 				// Cannot modify startup-time collection elements anymore (for stable iteration)
+				// beanDefinitionMap 为全局变量，避免并发情况
 				synchronized (this.beanDefinitionMap) {
+					// 添加 BeanDefinition 到 beanDefinitionMap 中
 					this.beanDefinitionMap.put(beanName, beanDefinition);
+					// 添加 beanName 到 beanDefinitionNames 中
 					List<String> updatedDefinitions = new ArrayList<>(this.beanDefinitionNames.size() + 1);
 					updatedDefinitions.addAll(this.beanDefinitionNames);
 					updatedDefinitions.add(beanName);
 					this.beanDefinitionNames = updatedDefinitions;
+					// 从 manualSingletonNames 移除 beanName
 					if (this.manualSingletonNames.contains(beanName)) {
 						Set<String> updatedSingletons = new LinkedHashSet<>(this.manualSingletonNames);
 						updatedSingletons.remove(beanName);
@@ -857,15 +862,18 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 			else {
 				// Still in startup registration phase
+				// 添加 BeanDefinition 到 beanDefinitionMap 中
 				this.beanDefinitionMap.put(beanName, beanDefinition);
+				// 添加 beanName 到 beanDefinitionNames 中
 				this.beanDefinitionNames.add(beanName);
+				// 从 manualSingletonNames 移除 beanName
 				this.manualSingletonNames.remove(beanName);
 			}
 			this.frozenBeanDefinitionNames = null;
 		}
 
+		// 重置所有 beanName 对应的缓存
 		if (existingDefinition != null || containsSingleton(beanName)) {
-			// 重置所有 beanName 对应的缓存
 			resetBeanDefinition(beanName);
 		}
 		else if (isConfigurationFrozen()) {

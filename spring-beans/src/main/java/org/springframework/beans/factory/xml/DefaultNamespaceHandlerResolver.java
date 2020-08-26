@@ -62,10 +62,21 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	@Nullable
 	private final ClassLoader classLoader;
 
-	/** Resource location to search for */
+	/**
+	 * Resource location to search for
+	 * NamespaceHandler 映射配置文件地址
+	 */
 	private final String handlerMappingsLocation;
 
-	/** Stores the mappings from namespace URI to NamespaceHandler class name / instance */
+	/**
+	 * Stores the mappings from namespace URI to NamespaceHandler class name / instance
+	 * NamespaceHandler 映射
+	 *
+	 * key:命名空间
+	 * value:分成两种情况：
+	 * 1) 未初始化时，对应的 NamespaceHandler 的类路径
+	 * 2) 已初始化时，对应的 NamespaceHandler 实例
+	 */
 	@Nullable
 	private volatile Map<String, Object> handlerMappings;
 
@@ -159,6 +170,7 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	 * Load the specified NamespaceHandler mappings lazily.
 	 */
 	private Map<String, Object> getHandlerMappings() {
+		// 双重检查锁，延迟加载
 		Map<String, Object> handlerMappings = this.handlerMappings;
 		// 如果没有被缓存则开始进行缓存
 		if (handlerMappings == null) {

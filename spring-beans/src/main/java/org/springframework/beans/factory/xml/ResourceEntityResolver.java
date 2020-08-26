@@ -43,9 +43,9 @@ import org.springframework.lang.Nullable;
  * to the JVM working directory (the XML parser's default).
  *
  * <p>Note: In addition to relative paths, every URL that specifies a
- * file in the current system root, i.e. the JVM working directory,
+ * file in the current system root, i.e. the JVM workidirectory,
  * will be interpreted relative to the application context too.
- *
+ *ng
  * @author Juergen Hoeller
  * @since 31.07.2003
  * @see org.springframework.core.io.ResourceLoader

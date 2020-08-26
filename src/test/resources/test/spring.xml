@@ -2,15 +2,26 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-	<bean id="hongqi" class="test.bean.HongQi"/>
-	<bean id="bmw" class="test.bean.Bmw"/>
-	<bean id="display" class="test.bean.Display">
-		<lookup-method name="getCar" bean="bmw"/>
-	</bean>
+	<!--	<bean id="hongqi" class="test.bean.HongQi"/>-->
+	<!--	<bean id="bmw" class="test.bean.Bmw"/>-->
+	<!--	<bean id="display" class="test.bean.Display">-->
+	<!--		<lookup-method name="getCar" bean="bmw"/>-->
+	<!--	</bean>-->
 
 
-	<bean id="methodReplace" class="test.bean.MethodReplace"/>
-	<bean id="method" class="test.bean.Method">
-		<replaced-method name="display" replacer="methodReplace"/>
+	<!--	<bean id="methodReplace" class="test.bean.MethodReplace"/>-->
+	<!--	<bean id="method" class="test.bean.Method">-->
+	<!--		<replaced-method name="display" replacer="methodReplace"/>-->
+	<!--	</bean>-->
+
+	<!--	<bean id="beanPostProcessorTest" class="test.bean.BeanPostProcessorTest"/>-->
+	<bean id="studentService" class="test.bean.StudentService">
+		<property name="name" value="xck"/>
+		<property name="age" value="10"/>
 	</bean>
+
+	<bean class="test.bean.BeanFactoryPostProcessor_1"/>
+	<bean class="test.bean.BeanFactoryPostProcessor_2"/>
+
+
 </beans>

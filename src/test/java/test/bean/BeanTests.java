@@ -6,6 +6,8 @@ import org.junit.Test;
 
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
 /**
@@ -23,6 +25,21 @@ public class BeanTests {
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		bf.destroySingletons();
+	}
+
+	@Test
+	public void beanPostProcessor() {
+		bf.addBeanPostProcessor(new BeanPostProcessorTest());
+		final BeanPostProcessorTest test = bf.getBean("beanPostProcessorTest", BeanPostProcessorTest.class);
+		test.display();
+	}
+
+
+	@Test
+	public void beanFactoryPostProcessor() {
+		ApplicationContext context = new ClassPathXmlApplicationContext("test/spring.xml");
+		final StudentService studentService = context.getBean("studentService", StudentService.class);
+		System.out.println("student name:" + studentService.getName() + " --- age:" + studentService.getAge());
 	}
 
 	@Test

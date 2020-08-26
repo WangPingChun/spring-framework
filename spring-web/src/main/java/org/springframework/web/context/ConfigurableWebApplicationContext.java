@@ -36,14 +36,14 @@ import org.springframework.lang.Nullable;
  * @since 05.12.2003
  * @see #refresh
  * @see ContextLoader#createWebApplicationContext
- * @see org.springframework.web.servlet.FrameworkServlet#createWebApplicationContext
+			* @see org.springframework.web.servlet.FrameworkServlet#createWebApplicationContext
  */
-public interface ConfigurableWebApplicationContext extends WebApplicationContext, ConfigurableApplicationContext {
+	public interface ConfigurableWebApplicationContext extends WebApplicationContext, ConfigurableApplicationContext {
 
-	/**
-	 * Prefix for ApplicationContext ids that refer to context path and/or servlet name.
-	 */
-	String APPLICATION_CONTEXT_ID_PREFIX = WebApplicationContext.class.getName() + ":";
+		/**
+		 * Prefix for ApplicationContext ids that refer to context path and/or servlet name.
+		 */
+		String APPLICATION_CONTEXT_ID_PREFIX = WebApplicationContext.class.getName() + ":";
 
 	/**
 	 * Name of the ServletConfig environment bean in the factory.

@@ -188,15 +188,15 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 					if (delegate.isDefaultNamespace(ele)) {
 						// 如果该节点使用默认命名空间，执行默认解析
 						// 对 bean 的处理
-						// < bean id=" test" class=" test. TestBean"/>
+						// <bean id=" test" class="test.TestBean"/>
 						// 默认标签的解析
 						parseDefaultElement(ele, delegate);
 					}
 					else {
 						// 如果该节点非默认命名空间，执行自定义解析
 						// 对 bean 的处理
-						// < tx: annotation- driven/>
-						//
+						// <tx:annotation-driven/>
+						// 自定义标签的解析
 						delegate.parseCustomElement(ele);
 					}
 				}
@@ -261,8 +261,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 
 		// Absolute or relative?
 		if (absoluteLocation) {
-			// 如果是绝对 URI 则直接根据地址加载对应的配置文件
 			try {
+				// 添加配置文件地址的 Resource 到 actualResources 中，并加载相应的 BeanDefinition
 				int importCount = getReaderContext().getReader().loadBeanDefinitions(location, actualResources);
 				if (logger.isDebugEnabled()) {
 					logger.debug("Imported " + importCount + " bean definitions from URL location [" + location + "]");
@@ -275,19 +275,22 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		}
 		else {
 			// No URL -> considering resource location as relative to the current file.
-			// 如果是相对地址则根据相对地址计算出绝对地址
 			try {
 				int importCount;
 				// Resource 存在多个子实现类，如 VfsResource、FileSystemResource 等，
 				// 而每个 resource 的 createRelative 方式实现都不一样，所以这里先使用子类的方法尝试解析
 				Resource relativeResource = getReaderContext().getResource().createRelative(location);
 				if (relativeResource.exists()) {
+					// 加载 relativeResource 中的 BeanDefinition 们
 					importCount = getReaderContext().getReader().loadBeanDefinitions(relativeResource);
+					// 添加到 actualResources 中
 					actualResources.add(relativeResource);
 				}
 				else {
 					// 如果解析不成功，则使用默认的解析器 ResourcePatternResolver 进行解析
+					// 获得根路径地址
 					String baseLocation = getReaderContext().getResource().getURL().toString();
+					// 添加配置文件地址的 Resource 到 actualResources 中，并加载相应的 BeanDefinition 们
 					importCount = getReaderContext().getReader().loadBeanDefinitions(
 							StringUtils.applyRelativePath(baseLocation, location), actualResources);
 				}
@@ -343,8 +346,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * and registering it with the registry.
 	 */
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
-		// 委托生成 BeanDefinitionHolder 类型实例，bdHolder 实例已经包含我们配置文件中配置的各种属性了，
-		// 例如 class、name、id、alias 之类的属性
+		// 委托生成 BeanDefinitionHolder 类型实例，bdHolder 实例已经包含我们配置文件中配置的各种属性了，例如 class、name、id、alias 之类的属性
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
 		if (bdHolder != null) {
 			// 如果需要的话就对 beanDefinition 进行装饰
@@ -357,8 +359,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				getReaderContext().error("Failed to register bean definition with name '" +
 						bdHolder.getBeanName() + "'", ele, ex);
 			}
-			// Send registration event.
 			// 通知监听器解析及注册完成
+			// Send registration event.
 			getReaderContext().fireComponentRegistered(new BeanComponentDefinition(bdHolder));
 		}
 	}

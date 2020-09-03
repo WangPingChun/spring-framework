@@ -67,9 +67,11 @@ public abstract class TypeConverterSupport extends PropertyEditorRegistrySupport
 		Assert.state(this.typeConverterDelegate != null, "No TypeConverterDelegate");
 		try {
 			if (field != null) {
+				// field
 				return this.typeConverterDelegate.convertIfNecessary(value, requiredType, field);
 			}
 			else {
+				// methodParam
 				return this.typeConverterDelegate.convertIfNecessary(value, requiredType, methodParam);
 			}
 		}

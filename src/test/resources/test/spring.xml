@@ -56,5 +56,12 @@
 	<!--		<property name="username" value="imaginecup"/>-->
 	<!--		<property name="password" value="Microsoft"/>-->
 	<!--	</bean>-->
-	<bean id="testListener" class="test.bean.TestListener"/>
+	<!--	<bean id="testListener" class="test.bean.TestListener"/>-->
+	<bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+		<property name="converters">
+			<list>
+				<bean class="test.bean.String2DateConverter"/>
+			</list>
+		</property>
+	</bean>
 </beans>

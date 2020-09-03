@@ -75,4 +75,9 @@ public class BeanTests {
 		TestEvent event = new TestEvent("hello", "message");
 		context.publishEvent(event);
 	}
+
+	@Test
+	public void converter() {
+
+	}
 }

@@ -15,13 +15,46 @@
 	<!--	</bean>-->
 
 	<!--	<bean id="beanPostProcessorTest" class="test.bean.BeanPostProcessorTest"/>-->
-	<bean id="studentService" class="test.bean.StudentService">
-		<property name="name" value="xck"/>
-		<property name="age" value="10"/>
-	</bean>
+	<!--	<bean id="studentService" class="test.bean.StudentService">-->
+	<!--		<property name="name" value="xck"/>-->
+	<!--		<property name="age" value="10"/>-->
+	<!--	</bean>-->
 
-	<bean class="test.bean.BeanFactoryPostProcessor_1"/>
-	<bean class="test.bean.BeanFactoryPostProcessor_2"/>
+	<!--	<bean class="test.bean.BeanFactoryPostProcessor_1"/>-->
+	<!--	<bean class="test.bean.BeanFactoryPostProcessor_2"/>-->
 
+	<!--	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">-->
+	<!--		<property name="customEditors">-->
+	<!--			<map>-->
+	<!--				<entry key="java.util.Date">-->
+	<!--					<bean class="test.bean.DatePropertyEditor">-->
+	<!--						<property name="format" value="yyyy-MM-dd"/>-->
+	<!--					</bean>-->
+	<!--				</entry>-->
+	<!--			</map>-->
+	<!--		</property>-->
+	<!--	</bean>-->
+	<!--	<bean id="userManager" class="test.bean.UserManager">-->
+	<!--		<property name="dateValue">-->
+	<!--			<value>2013-03-15</value>-->
+	<!--		</property>-->
+	<!--	</bean>-->
 
+	<!--	<bean id="bfpp" class="test.bean.ObscenityRemovingBeanFactoryPostProcessor">-->
+	<!--		<property name="obscenties">-->
+	<!--			<set>-->
+	<!--				<value>bollocks</value>-->
+	<!--				<value>winky</value>-->
+	<!--				<value>bum</value>-->
+	<!--				<value>Microsoft</value>-->
+	<!--			</set>-->
+	<!--		</property>-->
+	<!--	</bean>-->
+
+	<!--	<bean id="simpleBean" class="test.bean.SimplePostProcessor">-->
+	<!--		<property name="connectionString" value="bollocks"/>-->
+	<!--		<property name="username" value="imaginecup"/>-->
+	<!--		<property name="password" value="Microsoft"/>-->
+	<!--	</bean>-->
+	<bean id="testListener" class="test.bean.TestListener"/>
 </beans>

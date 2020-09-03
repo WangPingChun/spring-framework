@@ -4,6 +4,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
@@ -43,6 +44,13 @@ public class BeanTests {
 	}
 
 	@Test
+	public void customBeanFactoryPostProcessor() {
+		final BeanFactoryPostProcessor bfpp = bf.getBean("bfpp", ObscenityRemovingBeanFactoryPostProcessor.class);
+		bfpp.postProcessBeanFactory(bf);
+		System.out.println(bf.getBean("simpleBean", SimplePostProcessor.class));
+	}
+
+	@Test
 	public void lookupMethod() {
 		final Display display = (Display) bf.getBean("display");
 		display.display();
@@ -52,5 +60,19 @@ public class BeanTests {
 	public void replaceMethod() {
 		final Method method = (Method) bf.getBean("method");
 		method.display();
+	}
+
+	@Test
+	public void propertyEditor() {
+		ApplicationContext context = new ClassPathXmlApplicationContext("test/spring.xml");
+		final UserManager userManager = context.getBean("userManager", UserManager.class);
+		System.out.println(userManager);
+	}
+
+	@Test
+	public void event() {
+		ApplicationContext context = new ClassPathXmlApplicationContext("test/spring.xml");
+		TestEvent event = new TestEvent("hello", "message");
+		context.publishEvent(event);
 	}
 }

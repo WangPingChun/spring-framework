@@ -217,12 +217,11 @@ public abstract class PlaceholderConfigurerSupport extends PropertyResourceConfi
 
 		String[] beanNames = beanFactoryToProcess.getBeanDefinitionNames();
 		for (String curName : beanNames) {
-			// 校验
 			// Check that we're not parsing our own bean definition,
 			// to avoid failing on unresolvable placeholders in properties file locations.
-			if (!(curName.equals(this.beanName) // 当前实例 PlaceholderConfigurerSupport 不在解析范围内
-					&& beanFactoryToProcess.equals(this.beanFactory)) // 同一个 Spring 容器
-			) {
+			// 当前实例 PlaceholderConfigurerSupport 不在解析范围内
+			// 同一个 Spring 容器
+			if (!(curName.equals(this.beanName) && beanFactoryToProcess.equals(this.beanFactory))) {
 				BeanDefinition bd = beanFactoryToProcess.getBeanDefinition(curName);
 				try {
 					visitor.visitBeanDefinition(bd);

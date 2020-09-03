@@ -43,6 +43,7 @@ public abstract class ConversionServiceFactory {
 	 */
 	public static void registerConverters(@Nullable Set<?> converters, ConverterRegistry registry) {
 		if (converters != null) {
+			// 遍历 converters 数组，逐个注解
 			for (Object converter : converters) {
 				if (converter instanceof GenericConverter) {
 					registry.addConverter((GenericConverter) converter);

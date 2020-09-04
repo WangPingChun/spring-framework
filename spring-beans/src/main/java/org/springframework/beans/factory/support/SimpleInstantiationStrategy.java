@@ -94,7 +94,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 		}
 		else {
 			// Must generate CGLIB subclass.
-			// 生成 GCLIB 创建的子类对象
+			// 生成 CGLIB 创建的子类对象
 			return instantiateWithMethodInjection(bd, beanName, owner);
 		}
 	}
@@ -167,6 +167,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 				currentlyInvokedFactoryMethod.set(factoryMethod);
 				// 创建 bean 对象
 				Object result = factoryMethod.invoke(factoryBean, args);
+				// 未创建，则创建 NullBean 对象
 				if (result == null) {
 					result = new NullBean();
 				}

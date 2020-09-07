@@ -21,6 +21,9 @@ import org.w3c.dom.Document;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 
 /**
+ * 完成 BeanDefinition 的解析和注册：
+ * 解析：解析 Document 的内容并将其添加到 BeanDefinition 实例的过程
+ * 注册：就是将 BeanDefinition 添加进 BeanDefinitionHolder 的过程，这样做的目的时保存他的信息
  * SPI for parsing an XML document that contains Spring bean definitions.
  * Used by {@link XmlBeanDefinitionReader} for actually parsing a DOM document.
  *

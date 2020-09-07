@@ -159,13 +159,19 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	/** Logger used by this class. Available to subclasses. */
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	/** Unique id for this context, if any */
+	/**
+	 * Unique id for this context, if any
+	 * 上下文使用的唯一 id，标识此 ApplicationContext
+	 */
 	private String id = ObjectUtils.identityToString(this);
 
 	/** Display name */
 	private String displayName = ObjectUtils.identityToString(this);
 
-	/** Parent context */
+	/**
+	 *  Parent context
+	 *  父级 ApplicationContext
+	 */
 	@Nullable
 	private ApplicationContext parent;
 
@@ -173,7 +179,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Nullable
 	private ConfigurableEnvironment environment;
 
-	/** BeanFactoryPostProcessors to apply on refresh */
+	/**
+	 * BeanFactoryPostProcessors to apply on refresh
+	 * 存储 BeanFactoryPostProcessor 接口，Spring 提供的一个扩展点
+	 */
 	private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
 
 	/** System time in milliseconds when this context started */
@@ -185,29 +194,50 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	/** Flag that indicates whether this context has been closed already */
 	private final AtomicBoolean closed = new AtomicBoolean();
 
-	/** Synchronization monitor for the "refresh" and "destroy" */
+	/**
+	 * Synchronization monitor for the "refresh" and "destroy"
+	 * refresh 方法和 destroy 方法公用的一个监视器，避免两个方法同时执行
+	 */
 	private final Object startupShutdownMonitor = new Object();
 
-	/** Reference to the JVM shutdown hook, if registered */
+	/**
+	 * Reference to the JVM shutdown hook, if registered
+	 * Spring 提供的一个钩子，JVM 停止执行时会运行 Thread 里面的方法
+	 */
 	@Nullable
 	private Thread shutdownHook;
 
-	/** ResourcePatternResolver used by this context */
+	/**
+	 * ResourcePatternResolver used by this context
+	 * 上下文使用的资源格式解析器
+	 */
 	private ResourcePatternResolver resourcePatternResolver;
 
-	/** LifecycleProcessor for managing the lifecycle of beans within this context */
+	/**
+	 * LifecycleProcessor for managing the lifecycle of beans within this context
+	 * 用于管理 Bean 生命周期的生命周期处理器接口
+	 */
 	@Nullable
 	private LifecycleProcessor lifecycleProcessor;
 
-	/** MessageSource we delegate our implementation of this interface to */
+	/**
+	 * MessageSource we delegate our implementation of this interface to
+	 * 用于实现国际化的一个接口
+	 */
 	@Nullable
 	private MessageSource messageSource;
 
-	/** Helper class used in event publishing */
+	/**
+	 * Helper class used in event publishing
+	 * Spring 提供的事件管理机制中的事件多播器接口
+	 */
 	@Nullable
 	private ApplicationEventMulticaster applicationEventMulticaster;
 
-	/** Statically specified listeners */
+	/**
+	 * Statically specified listeners
+	 * Spring 提供的事件管理机制中的应用监听器
+	 */
 	private final Set<ApplicationListener<?>> applicationListeners = new LinkedHashSet<>();
 
 	/** Local listeners registered before refresh */

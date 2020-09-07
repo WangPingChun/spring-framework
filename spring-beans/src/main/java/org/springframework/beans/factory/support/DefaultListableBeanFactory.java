@@ -747,6 +747,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					if (bean instanceof FactoryBean) {
 						FactoryBean<?> factory = (FactoryBean<?>) bean;
 						boolean isEagerInit;
+						// SmartFactoryBean
 						if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
 							isEagerInit = AccessController.doPrivileged(
 									(PrivilegedAction<Boolean>) ((SmartFactoryBean<?>) factory)::isEagerInit,

@@ -16,13 +16,12 @@
 
 package org.springframework.aop.aspectj;
 
-import java.io.Serializable;
-import java.lang.reflect.Method;
-
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-
 import org.springframework.aop.AfterAdvice;
+
+import java.io.Serializable;
+import java.lang.reflect.Method;
 
 /**
  * Spring AOP advice wrapping an AspectJ after advice method.
@@ -44,9 +43,10 @@ public class AspectJAfterAdvice extends AbstractAspectJAdvice
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		try {
+			// 调用 proceed
 			return mi.proceed();
-		}
-		finally {
+		} finally {
+			// 激活增强方法
 			invokeAdviceMethod(getJoinPointMatch(), null, null);
 		}
 	}

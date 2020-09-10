@@ -91,6 +91,7 @@ class InstantiationModelAwarePointcutAdvisorImpl
 		this.aspectJAdviceMethod = aspectJAdviceMethod;
 		this.aspectJAdvisorFactory = aspectJAdvisorFactory;
 		this.aspectInstanceFactory = aspectInstanceFactory;
+		// 方法调用序号
 		this.declarationOrder = declarationOrder;
 		this.aspectName = aspectName;
 
@@ -110,6 +111,7 @@ class InstantiationModelAwarePointcutAdvisorImpl
 			// A singleton aspect.
 			this.pointcut = this.declaredPointcut;
 			this.lazy = false;
+			// 按照注解解析 Advice
 			this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);
 		}
 	}

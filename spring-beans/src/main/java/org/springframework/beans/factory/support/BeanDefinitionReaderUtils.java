@@ -159,6 +159,7 @@ public class BeanDefinitionReaderUtils {
 		String[] aliases = definitionHolder.getAliases();
 		if (aliases != null) {
 			for (String alias : aliases) {
+				// alias --> beanName，获取的时候，会先将 alias 转换为 beanName，然后再查找
 				registry.registerAlias(beanName, alias);
 			}
 		}

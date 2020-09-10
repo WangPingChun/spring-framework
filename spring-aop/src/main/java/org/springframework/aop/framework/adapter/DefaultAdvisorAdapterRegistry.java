@@ -55,17 +55,21 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 
 	@Override
 	public Advisor wrap(Object adviceObject) throws UnknownAdviceTypeException {
+		// 直接返回，无需封装
 		if (adviceObject instanceof Advisor) {
 			return (Advisor) adviceObject;
 		}
+		// 因为此封装方法只对 Advisor 和 Advice 两种类型的数据有效，如果不是将不能封装
 		if (!(adviceObject instanceof Advice)) {
 			throw new UnknownAdviceTypeException(adviceObject);
 		}
 		Advice advice = (Advice) adviceObject;
 		if (advice instanceof MethodInterceptor) {
 			// So well-known it doesn't even need an adapter.
+			// 如果是 MethodInterceptor 类型则使用 DefaultPointcutAdvisor 封装
 			return new DefaultPointcutAdvisor(advice);
 		}
+		// 如果存在 Advisor 的适配器那么也同样需要进行封装
 		for (AdvisorAdapter adapter : this.adapters) {
 			// Check that it is supported.
 			if (adapter.supportsAdvice(advice)) {
@@ -79,9 +83,12 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 	public MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdviceTypeException {
 		List<MethodInterceptor> interceptors = new ArrayList<>(3);
 		Advice advice = advisor.getAdvice();
+		// 若 advice 是 MethodInterceptor 类型的，直接添加到 interceptors 列表中即可
 		if (advice instanceof MethodInterceptor) {
 			interceptors.add((MethodInterceptor) advice);
 		}
+
+		// 对于 AspectJMethodBeforeAdvice 等类型通知，由于没有实现 MethodInterceptor 接口，所以这里需要通过适配器进行转换
 		for (AdvisorAdapter adapter : this.adapters) {
 			if (adapter.supportsAdvice(advice)) {
 				interceptors.add(adapter.getInterceptor(advisor));

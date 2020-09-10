@@ -78,6 +78,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 							constructorToUse = AccessController.doPrivileged(
 									(PrivilegedExceptionAction<Constructor<?>>) clazz::getDeclaredConstructor);
 						} else {
+							// 获取默认构造方法
 							constructorToUse = clazz.getDeclaredConstructor();
 						}
 						// 标记 resolvedConstructorOrFactoryMethod 属性

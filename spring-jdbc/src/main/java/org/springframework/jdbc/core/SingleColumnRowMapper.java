@@ -16,10 +16,6 @@
 
 package org.springframework.jdbc.core;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.dao.TypeMismatchDataAccessException;
@@ -28,6 +24,10 @@ import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.NumberUtils;
+
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 
 /**
  * {@link RowMapper} implementation that converts a single column into a single
@@ -40,9 +40,9 @@ import org.springframework.util.NumberUtils;
  *
  * @author Juergen Hoeller
  * @author Kazuki Shimizu
- * @since 1.2
  * @see JdbcTemplate#queryForList(String, Class)
  * @see JdbcTemplate#queryForObject(String, Class)
+ * @since 1.2
  */
 public class SingleColumnRowMapper<T> implements RowMapper<T> {
 
@@ -54,6 +54,7 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
 
 	/**
 	 * Create a new {@code SingleColumnRowMapper} for bean-style configuration.
+	 *
 	 * @see #setRequiredType
 	 */
 	public SingleColumnRowMapper() {
@@ -63,6 +64,7 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
 	 * Create a new {@code SingleColumnRowMapper}.
 	 * <p>Consider using the {@link #newInstance} factory method instead,
 	 * which allows for specifying the required type once only.
+	 *
 	 * @param requiredType the type that each result object is expected to match
 	 */
 	public SingleColumnRowMapper(Class<T> requiredType) {
@@ -82,8 +84,9 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
 	/**
 	 * Set a {@link ConversionService} for converting a fetched value.
 	 * <p>Default is the {@link DefaultConversionService}.
-	 * @since 5.0.4
+	 *
 	 * @see DefaultConversionService#getSharedInstance
+	 * @since 5.0.4
 	 */
 	public void setConversionService(@Nullable ConversionService conversionService) {
 		this.conversionService = conversionService;
@@ -94,6 +97,7 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
 	 * <p>Validates that there is only one column selected,
 	 * then delegates to {@code getColumnValue()} and also
 	 * {@code convertValueToRequiredType}, if necessary.
+	 *
 	 * @see java.sql.ResultSetMetaData#getColumnCount()
 	 * @see #getColumnValue(java.sql.ResultSet, int, Class)
 	 * @see #convertValueToRequiredType(Object, Class)
@@ -103,6 +107,7 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
 	@Nullable
 	public T mapRow(ResultSet rs, int rowNum) throws SQLException {
 		// Validate column count.
+		// 验证返回结果数
 		ResultSetMetaData rsmd = rs.getMetaData();
 		int nrOfColumns = rsmd.getColumnCount();
 		if (nrOfColumns != 1) {
@@ -114,12 +119,12 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
 		if (result != null && this.requiredType != null && !this.requiredType.isInstance(result)) {
 			// Extracted value does not match already: try to convert it.
 			try {
+				// 转换为对应的类型
 				return (T) convertValueToRequiredType(result, this.requiredType);
-			}
-			catch (IllegalArgumentException ex) {
+			} catch (IllegalArgumentException ex) {
 				throw new TypeMismatchDataAccessException(
 						"Type mismatch affecting row number " + rowNum + " and column type '" +
-						rsmd.getColumnTypeName(1) + "': " + ex.getMessage());
+								rsmd.getColumnTypeName(1) + "': " + ex.getMessage());
 			}
 		}
 		return (T) result;
@@ -133,10 +138,11 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
 	 * {@code getColumnValue(rs, index)}, which basically calls
 	 * {@code ResultSet.getObject(index)} but applies some additional
 	 * default conversion to appropriate value types.
-	 * @param rs is the ResultSet holding the data
-	 * @param index is the column index
+	 *
+	 * @param rs           is the ResultSet holding the data
+	 * @param index        is the column index
 	 * @param requiredType the type that each result object is expected to match
-	 * (or {@code null} if none specified)
+	 *                     (or {@code null} if none specified)
 	 * @return the Object value
 	 * @throws SQLException in case of extraction failure
 	 * @see org.springframework.jdbc.support.JdbcUtils#getResultSetValue(java.sql.ResultSet, int, Class)
@@ -146,8 +152,7 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
 	protected Object getColumnValue(ResultSet rs, int index, @Nullable Class<?> requiredType) throws SQLException {
 		if (requiredType != null) {
 			return JdbcUtils.getResultSetValue(rs, index, requiredType);
-		}
-		else {
+		} else {
 			// No required type specified -> perform default extraction.
 			return getColumnValue(rs, index);
 		}
@@ -161,7 +166,8 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
 	 * it includes a "hack" to get around Oracle returning a non-standard object for
 	 * their TIMESTAMP datatype. See the {@code JdbcUtils#getResultSetValue()}
 	 * javadoc for details.
-	 * @param rs is the ResultSet holding the data
+	 *
+	 * @param rs    is the ResultSet holding the data
 	 * @param index is the column index
 	 * @return the Object value
 	 * @throws SQLException in case of extraction failure
@@ -180,10 +186,11 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
 	 * converted into a Number, either through number conversion or through
 	 * String parsing (depending on the value type). Otherwise, the value will
 	 * be converted to a required type using the {@link ConversionService}.
-	 * @param value the column value as extracted from {@code getColumnValue()}
-	 * (never {@code null})
+	 *
+	 * @param value        the column value as extracted from {@code getColumnValue()}
+	 *                     (never {@code null})
 	 * @param requiredType the type that each result object is expected to match
-	 * (never {@code null})
+	 *                     (never {@code null})
 	 * @return the converted value
 	 * @see #getColumnValue(java.sql.ResultSet, int, Class)
 	 */
@@ -192,24 +199,20 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
 	protected Object convertValueToRequiredType(Object value, Class<?> requiredType) {
 		if (String.class == requiredType) {
 			return value.toString();
-		}
-		else if (Number.class.isAssignableFrom(requiredType)) {
+		} else if (Number.class.isAssignableFrom(requiredType)) {
 			if (value instanceof Number) {
 				// Convert original Number to target Number class.
 				return NumberUtils.convertNumberToTargetClass(((Number) value), (Class<Number>) requiredType);
-			}
-			else {
+			} else {
 				// Convert stringified value to target Number class.
-				return NumberUtils.parseNumber(value.toString(),(Class<Number>) requiredType);
+				return NumberUtils.parseNumber(value.toString(), (Class<Number>) requiredType);
 			}
-		}
-		else if (this.conversionService != null && this.conversionService.canConvert(value.getClass(), requiredType)) {
+		} else if (this.conversionService != null && this.conversionService.canConvert(value.getClass(), requiredType)) {
 			return this.conversionService.convert(value, requiredType);
-		}
-		else {
+		} else {
 			throw new IllegalArgumentException(
 					"Value [" + value + "] is of type [" + value.getClass().getName() +
-					"] and cannot be converted to required type [" + requiredType.getName() + "]");
+							"] and cannot be converted to required type [" + requiredType.getName() + "]");
 		}
 	}
 
@@ -217,9 +220,10 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
 	/**
 	 * Static factory method to create a new {@code SingleColumnRowMapper}
 	 * (with the required type specified only once).
+	 *
 	 * @param requiredType the type that each result object is expected to match
-	 * @since 4.1
 	 * @see #newInstance(Class, ConversionService)
+	 * @since 4.1
 	 */
 	public static <T> SingleColumnRowMapper<T> newInstance(Class<T> requiredType) {
 		return new SingleColumnRowMapper<>(requiredType);
@@ -228,12 +232,13 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
 	/**
 	 * Static factory method to create a new {@code SingleColumnRowMapper}
 	 * (with the required type specified only once).
-	 * @param requiredType the type that each result object is expected to match
+	 *
+	 * @param requiredType      the type that each result object is expected to match
 	 * @param conversionService the {@link ConversionService} for converting a
-	 * fetched value, or {@code null} for none
-	 * @since 5.0.4
+	 *                          fetched value, or {@code null} for none
 	 * @see #newInstance(Class)
 	 * @see #setConversionService
+	 * @since 5.0.4
 	 */
 	public static <T> SingleColumnRowMapper<T> newInstance(
 			Class<T> requiredType, @Nullable ConversionService conversionService) {

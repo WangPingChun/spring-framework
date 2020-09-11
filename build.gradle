@@ -173,6 +173,8 @@ configure(allprojects) { project ->
 		// JSR-305 only used for non-required meta-annotations
 		compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 		testCompileOnly("com.google.code.findbugs:jsr305:3.0.2")
+		compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
+		compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.49'
 	}
 
 	ext.javadocLinks = [
@@ -323,3 +325,5 @@ def qualifyVersionIfNecessary(version) {
 	}
 	return version
 }
+
+

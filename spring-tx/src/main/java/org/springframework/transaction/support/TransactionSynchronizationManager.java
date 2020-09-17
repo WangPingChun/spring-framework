@@ -183,6 +183,7 @@ public abstract class TransactionSynchronizationManager {
 			map = new HashMap<>();
 			resources.set(map);
 		}
+		// (数据源, 连接) 因为 Spring 可以有多个数据源
 		Object oldValue = map.put(actualKey, value);
 		// Transparently suppress a ResourceHolder that was marked as void...
 		if (oldValue instanceof ResourceHolder && ((ResourceHolder) oldValue).isVoid()) {
@@ -212,6 +213,7 @@ public abstract class TransactionSynchronizationManager {
 			throw new IllegalStateException(
 					"No value for key [" + actualKey + "] bound to thread [" + Thread.currentThread().getName() + "]");
 		}
+		// 返回的是挂起的连接
 		return value;
 	}
 

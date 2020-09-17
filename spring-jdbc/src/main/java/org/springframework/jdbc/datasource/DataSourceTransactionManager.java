@@ -235,12 +235,15 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
 	@Override
 	protected Object doGetTransaction() {
+		// 这就是事务对象，管理 connection 对象（connectionHolder），创建回滚点回滚，释放回滚点
 		DataSourceTransactionObject txObject = new DataSourceTransactionObject();
+		// DataSourceTransactionManager 默认是允许嵌套事务的
 		txObject.setSavepointAllowed(isNestedTransactionAllowed());
+		// obtainDataSource() 获取数据源对象（自己设置的），其实就是数据库连接池，这一步是为了拿到外层事务的连接
+		// 如果是最外层事务，就拿不到
 		// 如果当前线程已经记录数据库连接则使用原有连接
 		ConnectionHolder conHolder =
 				(ConnectionHolder) TransactionSynchronizationManager.getResource(obtainDataSource());
-		// false 表示非新创建连接
 		txObject.setConnectionHolder(conHolder, false);
 		return txObject;
 	}
@@ -257,12 +260,15 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 		Connection con = null;
 
 		try {
+			// 如果没有数据库连接
 			if (!txObject.hasConnectionHolder() ||
 					txObject.getConnectionHolder().isSynchronizedWithTransaction()) {
+				// 从连接池里面获取连接
 				Connection newCon = obtainDataSource().getConnection();
 				if (logger.isDebugEnabled()) {
 					logger.debug("Acquired Connection [" + newCon + "] for JDBC transaction");
 				}
+				// 把连接包装成 ConnectionHolder，然后设置到事务对象中
 				txObject.setConnectionHolder(new ConnectionHolder(newCon), true);
 			}
 
@@ -283,12 +289,14 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 				if (logger.isDebugEnabled()) {
 					logger.debug("Switching JDBC Connection [" + con + "] to manual commit");
 				}
-				// 取消数据库的自动提交
+				// 关闭连接的自动提交，其实这一步就是开启了事务
 				con.setAutoCommit(false);
 			}
 
+			// 设置只读事务，从这一点设置的时间点开始到这个事务结束的过程中，其它事务所提交的数据，该事务将看不见
+			// 设置只读事务就是告诉数据库，我这个事务内没有新增、修改、删除操作，只有查询操作，不需要数据库锁等操
+			// 作，减少数据库压力
 			prepareTransactionalConnection(con, definition);
-			// 设置判断当前线程是否存在事务的依据
 			txObject.getConnectionHolder().setTransactionActive(true);
 
 			int timeout = determineTimeout(definition);
@@ -298,7 +306,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
 			// Bind the connection holder to the thread.
 			if (txObject.isNewConnectionHolder()) {
-				// 将当前获取到的连接绑定到当前线程
+				// 如果是新创建的事务，则建立当前线程和数据库连接的关系
 				TransactionSynchronizationManager.bindResource(obtainDataSource(), txObject.getConnectionHolder());
 			}
 		}

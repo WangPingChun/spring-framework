@@ -22,6 +22,10 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
 
 /**
+ * 扩展自 PlatformTransactionManager。
+ * 相当于是把事务的创建、提交和回滚操作都封装起来了，用于只需要传入 TransactionCallback 接口实例即可，
+ * 而不是像使用 PlatformTransactionManager 接口那样，还需要用户自己显式调用 getTransaction、rollback、
+ * commit 进行事务管理
  * Extension of the {@link org.springframework.transaction.PlatformTransactionManager}
  * interface, exposing a method for executing a given callback within a transaction.
  *

@@ -20,6 +20,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 /**
+ * 在 Servlet 容器启动时，例如 Tomcat、Jetty 启动时，会被 ContextLoaderListener 监听到，从而调用
+ * contextInitialized(ServletContextEvent event) 方法，初始化 RootWebApplicationContext 容器。
  * Bootstrap listener to start up and shut down Spring's root {@link WebApplicationContext}.
  * Simply delegates to {@link ContextLoader} as well as to {@link ContextCleanupListener}.
  *
@@ -100,6 +102,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
+		// 初始化 WebApplicationContext
 		initWebApplicationContext(event.getServletContext());
 	}
 

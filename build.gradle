@@ -278,12 +278,16 @@ configure(rootProject) {
 		testCompile(project(":spring-test"))
 		testCompile(project(":spring-tx"))
 		testCompile(project(":spring-web"))
+		testCompile(project(":spring-webmvc"))
 		testCompile("javax.inject:javax.inject:1")
 		testCompile("javax.resource:javax.resource-api:1.7")
 		testCompile("javax.servlet:javax.servlet-api:3.1.0")
 		testCompile("org.aspectj:aspectjweaver:${aspectjVersion}")
 		testCompile("org.hsqldb:hsqldb:${hsqldbVersion}")
 		testCompile("org.hibernate:hibernate-core:5.1.17.Final")
+		// https://mvnrepository.com/artifact/javax.servlet.jsp.jstl/jstl
+		compile group: 'javax.servlet.jsp.jstl', name: 'jstl', version: '1.2'
+
 	}
 
 	artifacts {

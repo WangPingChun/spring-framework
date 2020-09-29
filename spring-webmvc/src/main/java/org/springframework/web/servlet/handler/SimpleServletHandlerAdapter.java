@@ -25,6 +25,7 @@ import org.springframework.web.servlet.HandlerAdapter;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
+ * 基于 {@link javax.servlet.Servlet} 实现的 HandlerAdapter。
  * Adapter to use the Servlet interface with the generic DispatcherServlet.
  * Calls the Servlet's {@code service} method to handle a request.
  *
@@ -56,6 +57,7 @@ public class SimpleServletHandlerAdapter implements HandlerAdapter {
 
 	@Override
 	public boolean supports(Object handler) {
+		// 判断是 Servlet 类型
 		return (handler instanceof Servlet);
 	}
 
@@ -63,7 +65,7 @@ public class SimpleServletHandlerAdapter implements HandlerAdapter {
 	@Nullable
 	public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-
+		// Servlet 类型的调用
 		((Servlet) handler).service(request, response);
 		return null;
 	}

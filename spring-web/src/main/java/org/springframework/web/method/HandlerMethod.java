@@ -74,6 +74,9 @@ public class HandlerMethod {
 	 */
 	private final Method method;
 
+	/**
+	 * 桥接方法，兼容泛型的
+	 */
 	private final Method bridgedMethod;
 
 	/**
@@ -215,8 +218,10 @@ public class HandlerMethod {
 	}
 
 	private void evaluateResponseStatus() {
+		// 从方法上找到 @ResponseStatus 注解
 		ResponseStatus annotation = getMethodAnnotation(ResponseStatus.class);
 		if (annotation == null) {
+			// 从类上找到注解
 			annotation = AnnotatedElementUtils.findMergedAnnotation(getBeanType(), ResponseStatus.class);
 		}
 		if (annotation != null) {

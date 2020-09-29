@@ -76,10 +76,16 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	/**
+	 * HttpMessageConverter 数组
+	 */
 	protected final List<HttpMessageConverter<?>> messageConverters;
 
 	protected final List<MediaType> allSupportedMediaTypes;
 
+	/**
+	 * RequestResponseBodyAdviceChain 对象
+	 */
 	private final RequestResponseBodyAdviceChain advice;
 
 

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
@@ -183,8 +184,8 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	private static final boolean jackson2Present =
 			ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper",
 					WebMvcConfigurationSupport.class.getClassLoader()) &&
-			ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator",
-					WebMvcConfigurationSupport.class.getClassLoader());
+					ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator",
+							WebMvcConfigurationSupport.class.getClassLoader());
 
 	private static final boolean jackson2XmlPresent =
 			ClassUtils.isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper",
@@ -325,11 +326,16 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	 * <p>This method cannot be overridden; use {@link #addInterceptors} instead.
 	 */
 	protected final Object[] getInterceptors() {
+		// 若 interceptors 未初始化，则进行初始化操作
 		if (this.interceptors == null) {
+			// 创建 InterceptorRegistry 对象
 			InterceptorRegistry registry = new InterceptorRegistry();
+			// 添加拦截器到 interceptors 中
 			addInterceptors(registry);
+			// 添加内置拦截器到 interceptors 中
 			registry.addInterceptor(new ConversionServiceExposingInterceptor(mvcConversionService()));
 			registry.addInterceptor(new ResourceUrlProviderExposingInterceptor(mvcResourceUrlProvider()));
+			// 初始化到 interceptors 属性
 			this.interceptors = registry.getInterceptors();
 		}
 		return this.interceptors.toArray();
@@ -1024,7 +1030,6 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
 		return new HandlerMappingIntrospector();
 	}
-
 
 
 	private static final class EmptyHandlerMapping extends AbstractHandlerMapping {

@@ -107,6 +107,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		// 判断是否添加了 @RequestBody 注解
 		return parameter.hasParameterAnnotation(RequestBody.class);
 	}
 

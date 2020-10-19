@@ -30,6 +30,8 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
 
 /**
+ * 提供通用的缓存的 ViewResolver 抽象类。
+ * 对于相同的视图名，返回的是相同的 View 对象，所以可以通过缓存进一步提高性能
  * Convenient base class for {@link org.springframework.web.servlet.ViewResolver}
  * implementations. Caches {@link org.springframework.web.servlet.View} objects
  * once resolved: This means that view resolution won't be a performance problem,
@@ -54,27 +56,41 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 		public String getContentType() {
 			return null;
 		}
+
 		@Override
 		public void render(@Nullable Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) {
 		}
 	};
 
 
-	/** The maximum number of entries in the cache */
+	/**
+	 * The maximum number of entries in the cache
+	 * 缓存上限，如果 cacheLimit = 0，表示禁用缓存
+	 */
 	private volatile int cacheLimit = DEFAULT_CACHE_LIMIT;
 
-	/** Whether we should refrain from resolving views again if unresolved once */
+	/**
+	 * Whether we should refrain from resolving views again if unresolved once
+	 * 是否缓存空 View 对象
+	 */
 	private boolean cacheUnresolved = true;
 
-	/** Fast access cache for Views, returning already cached instances without a global lock */
+	/**
+	 * Fast access cache for Views, returning already cached instances without a global lock
+	 * View 的缓存的映射
+	 */
 	private final Map<Object, View> viewAccessCache = new ConcurrentHashMap<>(DEFAULT_CACHE_LIMIT);
 
-	/** Map from view key to View instance, synchronized for View creation */
+	/**
+	 * Map from view key to View instance, synchronized for View creation
+	 * View 的缓存的映射。相比 {@link #viewAccessCache} 来说，增加了 synchronized 锁
+	 */
 	@SuppressWarnings("serial")
 	private final Map<Object, View> viewCreationCache =
 			new LinkedHashMap<Object, View>(DEFAULT_CACHE_LIMIT, 0.75f, true) {
 				@Override
 				protected boolean removeEldestEntry(Map.Entry<Object, View> eldest) {
+					// 如果超过上限，则从 viewAccessCache 中也移除
 					if (size() > getCacheLimit()) {
 						viewAccessCache.remove(eldest.getKey());
 						return true;
@@ -146,21 +162,31 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 	@Override
 	@Nullable
 	public View resolveViewName(String viewName, Locale locale) throws Exception {
+		// 如果禁用缓存，则创建 viewName 对应的 View 对象
 		if (!isCache()) {
 			return createView(viewName, locale);
 		}
 		else {
+			// 获得缓存 KEY
 			Object cacheKey = getCacheKey(viewName, locale);
+			// 从 viewAccessCache 缓存中获得 View 对象
 			View view = this.viewAccessCache.get(cacheKey);
+			// 如果获得不到缓存，则从 viewCreationCache 中获得 View 对象
 			if (view == null) {
+				// synchronized 锁
 				synchronized (this.viewCreationCache) {
+					// 从 viewCreationCache 中获得 View 对象
 					view = this.viewCreationCache.get(cacheKey);
+					// 如果不存在，则创建 viewName 对应的 View 对象
 					if (view == null) {
 						// Ask the subclass to create the View object.
+						// 创建 viewName 对应的 View 对象
 						view = createView(viewName, locale);
+						// 如果创建失败，但是 cacheUnresolved 为 true，则设置为 UNRESOLVED_VIEW
 						if (view == null && this.cacheUnresolved) {
 							view = UNRESOLVED_VIEW;
 						}
+						// 如果 view 非空，则添加到 viewAccessCache 和 viewCreationCache 缓存中
 						if (view != null) {
 							this.viewAccessCache.put(cacheKey, view);
 							this.viewCreationCache.put(cacheKey, view);
@@ -171,6 +197,7 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 					}
 				}
 			}
+			// 返回 View
 			return (view != UNRESOLVED_VIEW ? view : null);
 		}
 	}

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+
 import javax.servlet.ServletContext;
 
 import org.springframework.beans.BeansException;
@@ -34,6 +35,7 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
 
 /**
+ * 复合 ViewResolver 实现类
  * A {@link org.springframework.web.servlet.ViewResolver} that delegates to others.
  *
  * @author Sebastien Deleuze
@@ -42,9 +44,14 @@ import org.springframework.web.servlet.ViewResolver;
  */
 public class ViewResolverComposite implements ViewResolver, Ordered, InitializingBean,
 		ApplicationContextAware, ServletContextAware {
-
+	/**
+	 * ViewResolver 数组
+	 */
 	private final List<ViewResolver> viewResolvers = new ArrayList<>();
 
+	/**
+	 * 优先级最低
+	 */
 	private int order = Ordered.LOWEST_PRECEDENCE;
 
 
@@ -78,7 +85,7 @@ public class ViewResolverComposite implements ViewResolver, Ordered, Initializin
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		for (ViewResolver viewResolver : this.viewResolvers) {
 			if (viewResolver instanceof ApplicationContextAware) {
-				((ApplicationContextAware)viewResolver).setApplicationContext(applicationContext);
+				((ApplicationContextAware) viewResolver).setApplicationContext(applicationContext);
 			}
 		}
 	}
@@ -87,7 +94,7 @@ public class ViewResolverComposite implements ViewResolver, Ordered, Initializin
 	public void setServletContext(ServletContext servletContext) {
 		for (ViewResolver viewResolver : this.viewResolvers) {
 			if (viewResolver instanceof ServletContextAware) {
-				((ServletContextAware)viewResolver).setServletContext(servletContext);
+				((ServletContextAware) viewResolver).setServletContext(servletContext);
 			}
 		}
 	}
@@ -104,8 +111,11 @@ public class ViewResolverComposite implements ViewResolver, Ordered, Initializin
 	@Override
 	@Nullable
 	public View resolveViewName(String viewName, Locale locale) throws Exception {
+		// 遍历 viewResolvers 数组，逐个进行解析，但凡成功，则返回该 View 对象
 		for (ViewResolver viewResolver : this.viewResolvers) {
+			// 执行解析
 			View view = viewResolver.resolveViewName(viewName, locale);
+			// 解析成功，则返回该 View 对象
 			if (view != null) {
 				return view;
 			}

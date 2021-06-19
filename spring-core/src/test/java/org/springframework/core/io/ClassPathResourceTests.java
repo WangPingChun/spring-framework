@@ -45,7 +45,6 @@ class ClassPathResourceTests {
 
 	private static final Pattern DESCRIPTION_PATTERN = Pattern.compile("^class path resource \\[(.+?)]$");
 
-
 	@Test
 	void stringConstructorRaisesExceptionWithFullyQualifiedPath() {
 		assertExceptionContainsFullyQualifiedPath(new ClassPathResource(FQ_RESOURCE_PATH));

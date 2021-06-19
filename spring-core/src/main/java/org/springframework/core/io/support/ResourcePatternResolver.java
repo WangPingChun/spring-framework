@@ -16,12 +16,13 @@
 
 package org.springframework.core.io.support;
 
-import java.io.IOException;
-
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
+import java.io.IOException;
+
 /**
+ * 是 ResourceLoader 的扩展,它支持根据指定的资源路径匹配模式每次返回多个 Resource 实例.
  * Strategy interface for resolving a location pattern (for example,
  * an Ant-style path pattern) into Resource objects.
  *
@@ -45,19 +46,21 @@ import org.springframework.core.io.ResourceLoader;
  * JAR files or classes directories can contain multiple files of the same name.
  *
  * @author Juergen Hoeller
- * @since 1.0.2
  * @see org.springframework.core.io.Resource
  * @see org.springframework.core.io.ResourceLoader
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ResourceLoaderAware
+ * @since 1.0.2
  */
 public interface ResourcePatternResolver extends ResourceLoader {
 
 	/**
+	 * 新的协议,子类实现了这个协议.
 	 * Pseudo URL prefix for all matching resources from the class path: "classpath*:"
 	 * This differs from ResourceLoader's classpath URL prefix in that it
 	 * retrieves all matching resources for a given name (e.g. "/beans.xml"),
 	 * for example in the root of all deployed JAR files.
+	 *
 	 * @see org.springframework.core.io.ResourceLoader#CLASSPATH_URL_PREFIX
 	 */
 	String CLASSPATH_ALL_URL_PREFIX = "classpath*:";
@@ -67,6 +70,7 @@ public interface ResourcePatternResolver extends ResourceLoader {
 	 * <p>Overlapping resource entries that point to the same physical
 	 * resource should be avoided, as far as possible. The result should
 	 * have set semantics.
+	 *
 	 * @param locationPattern the location pattern to resolve
 	 * @return the corresponding Resource objects
 	 * @throws IOException in case of I/O errors

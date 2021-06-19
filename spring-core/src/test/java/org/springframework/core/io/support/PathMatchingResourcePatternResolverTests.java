@@ -80,7 +80,7 @@ class PathMatchingResourcePatternResolverTests {
 		assertProtocolAndFilenames(resources, "jar", "Publisher.class");
 	}
 
-	@Disabled
+	// @Disabled
 	@Test
 	void classpathStarWithPatternOnFileSystem() throws IOException {
 		Resource[] resources = resolver.getResources("classpath*:org/springframework/core/io/sup*/*.class");

@@ -20,6 +20,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ResourceUtils;
 
 /**
+ * Spring 将资源的定义和资源的加载区分开了，Resource 定义了统一的资源，那资源的加载则由
+ * ResourceLoader 来统一定义.
+ * 主要应用于根据给定的资源文件地址,返回对应的 Resource.
  * Strategy interface for loading resources (e.. class path or file system
  * resources). An {@link org.springframework.context.ApplicationContext}
  * is required to provide this functionality, plus extended
@@ -33,19 +36,22 @@ import org.springframework.util.ResourceUtils;
  * context's resource loading strategy.
  *
  * @author Juergen Hoeller
- * @since 10.03.2004
  * @see Resource
  * @see org.springframework.core.io.support.ResourcePatternResolver
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ResourceLoaderAware
+ * @since 10.03.2004
  */
 public interface ResourceLoader {
 
-	/** Pseudo URL prefix for loading from the class path: "classpath:". */
+	/**
+	 * Pseudo URL prefix for loading from the class path: "classpath:".
+	 */
 	String CLASSPATH_URL_PREFIX = ResourceUtils.CLASSPATH_URL_PREFIX;
 
 
 	/**
+	 * 根据所提供的资源的路径 location 返回 Resource 实例.
 	 * Return a Resource handle for the specified resource location.
 	 * <p>The handle should always be a reusable resource descriptor,
 	 * allowing for multiple {@link Resource#getInputStream()} calls.
@@ -58,6 +64,7 @@ public interface ResourceLoader {
 	 * </ul>
 	 * <p>Note that a Resource handle does not imply an existing resource;
 	 * you need to invoke {@link Resource#exists} to check for existence.
+	 *
 	 * @param location the resource location
 	 * @return a corresponding Resource handle (never {@code null})
 	 * @see #CLASSPATH_URL_PREFIX
@@ -71,6 +78,7 @@ public interface ResourceLoader {
 	 * <p>Clients which need to access the ClassLoader directly can do so
 	 * in a uniform manner with the ResourceLoader, rather than relying
 	 * on the thread context ClassLoader.
+	 *
 	 * @return the ClassLoader
 	 * (only {@code null} if even the system ClassLoader isn't accessible)
 	 * @see org.springframework.util.ClassUtils#getDefaultClassLoader()

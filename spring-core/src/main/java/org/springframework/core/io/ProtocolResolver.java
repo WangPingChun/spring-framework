@@ -19,6 +19,11 @@ package org.springframework.core.io;
 import org.springframework.lang.Nullable;
 
 /**
+ * 用户自定义协议资源解决策略.
+ * <p>
+ * 允许用户自定义资源的加载协议,而不需要集成 ResourceLoader 的自子类.
+ * 有了 ProtocolResolver 后,我们不需要直接继承 DefaultResourceLoader,改为实现
+ * ProtocolResolver 接口也可以实现自定义的 ResourceLoader.
  * A resolution strategy for protocol-specific resource handles.
  *
  * <p>Used as an SPI for {@link DefaultResourceLoader}, allowing for
@@ -26,16 +31,19 @@ import org.springframework.lang.Nullable;
  * implementation (or application context implementation).
  *
  * @author Juergen Hoeller
- * @since 4.3
  * @see DefaultResourceLoader#addProtocolResolver
+ * @since 4.3
  */
 @FunctionalInterface
 public interface ProtocolResolver {
 
 	/**
+	 * 使用指定的 ResourceLoader,解析指定的 location.
+	 * 若成功则返回对应的 Resource.
 	 * Resolve the given location against the given resource loader
 	 * if this implementation's protocol matches.
-	 * @param location the user-specified resource location
+	 *
+	 * @param location       the user-specified resource location
 	 * @param resourceLoader the associated resource loader
 	 * @return a corresponding {@code Resource} handle if the given location
 	 * matches this resolver's protocol, or {@code null} otherwise

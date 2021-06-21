@@ -16,19 +16,18 @@
 
 package org.springframework.beans.factory.xml;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.lang.Nullable;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.lang.Nullable;
 
 /**
  * {@code EntityResolver} implementation that tries to resolve entity references
@@ -47,9 +46,9 @@ import org.springframework.lang.Nullable;
  * will be interpreted relative to the application context too.
  *
  * @author Juergen Hoeller
- * @since 31.07.2003
  * @see org.springframework.core.io.ResourceLoader
  * @see org.springframework.context.ApplicationContext
+ * @since 31.07.2003
  */
 public class ResourceEntityResolver extends DelegatingEntityResolver {
 
@@ -61,8 +60,9 @@ public class ResourceEntityResolver extends DelegatingEntityResolver {
 	/**
 	 * Create a ResourceEntityResolver for the specified ResourceLoader
 	 * (usually, an ApplicationContext).
+	 *
 	 * @param resourceLoader the ResourceLoader (or ApplicationContext)
-	 * to load XML entity includes with
+	 *                       to load XML entity includes with
 	 */
 	public ResourceEntityResolver(ResourceLoader resourceLoader) {
 		super(resourceLoader.getClassLoader());
@@ -75,20 +75,24 @@ public class ResourceEntityResolver extends DelegatingEntityResolver {
 	public InputSource resolveEntity(@Nullable String publicId, @Nullable String systemId)
 			throws SAXException, IOException {
 
+		// 调用父类的方法,进行解析
 		InputSource source = super.resolveEntity(publicId, systemId);
-
+		// 解析失败,resourceLoader 进行解析
 		if (source == null && systemId != null) {
+			// 解析 resourcePath 即 Resource 资源地址
 			String resourcePath = null;
 			try {
+				// 使用 UTF-8 解码 systemId
 				String decodedSystemId = URLDecoder.decode(systemId, "UTF-8");
+				// 转换成 URL 字符串
 				String givenUrl = new URL(decodedSystemId).toString();
+				// 解析文件资源的相对路径（相对于系统根路径）
 				String systemRootUrl = new File("").toURI().toURL().toString();
 				// Try relative to resource base if currently in system root.
 				if (givenUrl.startsWith(systemRootUrl)) {
 					resourcePath = givenUrl.substring(systemRootUrl.length());
 				}
-			}
-			catch (Exception ex) {
+			} catch (Exception ex) {
 				// Typically a MalformedURLException or AccessControlException.
 				if (logger.isDebugEnabled()) {
 					logger.debug("Could not resolve XML entity [" + systemId + "] against system root URL", ex);
@@ -100,15 +104,17 @@ public class ResourceEntityResolver extends DelegatingEntityResolver {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Trying to locate XML entity [" + systemId + "] as resource [" + resourcePath + "]");
 				}
+				// 获取 Resource 资源
 				Resource resource = this.resourceLoader.getResource(resourcePath);
+				// 创建 InputStream 对象
 				source = new InputSource(resource.getInputStream());
+				// 设置 publicId 和 systemId
 				source.setPublicId(publicId);
 				source.setSystemId(systemId);
 				if (logger.isDebugEnabled()) {
 					logger.debug("Found XML entity [" + systemId + "]: " + resource);
 				}
-			}
-			else if (systemId.endsWith(DTD_SUFFIX) || systemId.endsWith(XSD_SUFFIX)) {
+			} else if (systemId.endsWith(DTD_SUFFIX) || systemId.endsWith(XSD_SUFFIX)) {
 				// External dtd/xsd lookup via https even for canonical http declaration
 				String url = systemId;
 				if (url.startsWith("http:")) {
@@ -118,8 +124,7 @@ public class ResourceEntityResolver extends DelegatingEntityResolver {
 					source = new InputSource(new URL(url).openStream());
 					source.setPublicId(publicId);
 					source.setSystemId(systemId);
-				}
-				catch (IOException ex) {
+				} catch (IOException ex) {
 					if (logger.isDebugEnabled()) {
 						logger.debug("Could not resolve XML entity [" + systemId + "] through URL [" + url + "]", ex);
 					}

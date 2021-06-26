@@ -16,29 +16,30 @@
 
 package org.springframework.beans.factory.config;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.PropertyValue;
+import org.springframework.beans.factory.BeanInitializationException;
+
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.PropertyValue;
-import org.springframework.beans.factory.BeanInitializationException;
-
 /**
+ * 允许我们对 Spring 容器中配置的任何我们想处理的 bean 定义的 property 信息进行覆盖替换。
  * Property resource configurer that overrides bean property values in an application
  * context definition. It <i>pushes</i> values from a properties file into bean definitions.
  *
  * <p>Configuration lines are expected to be of the following form:
  *
  * <pre class="code">beanName.property=value</pre>
- *
+ * <p>
  * Example properties file:
  *
  * <pre class="code">dataSource.driverClassName=com.mysql.jdbc.Driver
  * dataSource.url=jdbc:mysql:mydb</pre>
- *
+ * <p>
  * In contrast to PropertyPlaceholderConfigurer, the original definition can have default
  * values or no values at all for such bean properties. If an overriding properties file does
  * not have an entry for a certain bean property, the default context definition is used.
@@ -58,9 +59,9 @@ import org.springframework.beans.factory.BeanInitializationException;
  *
  * @author Juergen Hoeller
  * @author Rod Johnson
- * @since 12.03.2003
  * @see #convertPropertyValue
  * @see PropertyPlaceholderConfigurer
+ * @since 12.03.2003
  */
 public class PropertyOverrideConfigurer extends PropertyResourceConfigurer {
 
@@ -69,7 +70,9 @@ public class PropertyOverrideConfigurer extends PropertyResourceConfigurer {
 	 */
 	public static final String DEFAULT_BEAN_NAME_SEPARATOR = ".";
 
-
+	/**
+	 * bean 名字的分隔符
+	 */
 	private String beanNameSeparator = DEFAULT_BEAN_NAME_SEPARATOR;
 
 	private boolean ignoreInvalidKeys = false;
@@ -103,12 +106,12 @@ public class PropertyOverrideConfigurer extends PropertyResourceConfigurer {
 	protected void processProperties(ConfigurableListableBeanFactory beanFactory, Properties props)
 			throws BeansException {
 
-		for (Enumeration<?> names = props.propertyNames(); names.hasMoreElements();) {
+		// 迭代配置文件中的内容
+		for (Enumeration<?> names = props.propertyNames(); names.hasMoreElements(); ) {
 			String key = (String) names.nextElement();
 			try {
 				processKey(beanFactory, key, props.getProperty(key));
-			}
-			catch (BeansException ex) {
+			} catch (BeansException ex) {
 				String msg = "Could not process key '" + key + "' in PropertyOverrideConfigurer";
 				if (!this.ignoreInvalidKeys) {
 					throw new BeanInitializationException(msg, ex);
@@ -125,15 +128,18 @@ public class PropertyOverrideConfigurer extends PropertyResourceConfigurer {
 	 */
 	protected void processKey(ConfigurableListableBeanFactory factory, String key, String value)
 			throws BeansException {
-
+		// 判断是否存在 "."，即获取其索引位置
 		int separatorIndex = key.indexOf(this.beanNameSeparator);
 		if (separatorIndex == -1) {
 			throw new BeanInitializationException("Invalid key '" + key +
 					"': expected 'beanName" + this.beanNameSeparator + "property'");
 		}
+		// 得到 beanName
 		String beanName = key.substring(0, separatorIndex);
+		// 得到属性值
 		String beanProperty = key.substring(separatorIndex + 1);
 		this.beanNames.add(beanName);
+		// 替换
 		applyPropertyValue(factory, beanName, beanProperty, value);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Property '" + key + "' set to value [" + value + "]");
@@ -145,13 +151,14 @@ public class PropertyOverrideConfigurer extends PropertyResourceConfigurer {
 	 */
 	protected void applyPropertyValue(
 			ConfigurableListableBeanFactory factory, String beanName, String property, String value) {
-
+		// 获得 BeanDefinition 对象
 		BeanDefinition bd = factory.getBeanDefinition(beanName);
 		BeanDefinition bdToUse = bd;
 		while (bd != null) {
 			bdToUse = bd;
 			bd = bd.getOriginatingBeanDefinition();
 		}
+		// 设置 PropertyValue 到 BeanDefinition 中
 		PropertyValue pv = new PropertyValue(property, value);
 		pv.setOptional(this.ignoreInvalidKeys);
 		bdToUse.getPropertyValues().addPropertyValue(pv);
@@ -161,6 +168,7 @@ public class PropertyOverrideConfigurer extends PropertyResourceConfigurer {
 	/**
 	 * Were there overrides for this bean?
 	 * Only valid after processing has occurred at least once.
+	 *
 	 * @param beanName name of the bean to query status for
 	 * @return whether there were property overrides for the named bean
 	 */

@@ -55,18 +55,22 @@ import org.springframework.beans.BeansException;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 06.07.2003
  * @see BeanPostProcessor
  * @see PropertyResourceConfigurer
+ * @since 06.07.2003
  */
 @FunctionalInterface
 public interface BeanFactoryPostProcessor {
 
 	/**
+	 * 相当于给了我们在 bean 实例化之前最后一次修改 BeanDefinition 的机会，我们可以利用这个
+	 * 机会对 BeanDefinition 来进行一些额外的操作，比如更改某些 bean 的一些属性，来给某些
+	 * bean 增加一些其他的信息等等操作。
 	 * Modify the application context's internal bean factory after its standard
 	 * initialization. All bean definitions will have been loaded, but no beans
 	 * will have been instantiated yet. This allows for overriding or adding
 	 * properties even to eager-initializing beans.
+	 *
 	 * @param beanFactory the bean factory used by the application context
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 */

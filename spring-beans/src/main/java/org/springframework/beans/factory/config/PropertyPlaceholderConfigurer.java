@@ -16,8 +16,6 @@
 
 package org.springframework.beans.factory.config;
 
-import java.util.Properties;
-
 import org.springframework.beans.BeansException;
 import org.springframework.core.Constants;
 import org.springframework.core.SpringProperties;
@@ -27,7 +25,10 @@ import org.springframework.util.PropertyPlaceholderHelper;
 import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
 import org.springframework.util.StringValueResolver;
 
+import java.util.Properties;
+
 /**
+ * 允许我们用 Properties 文件中的属性来定义应用上下文（配置文件或者注解）
  * {@link PlaceholderConfigurerSupport} subclass that resolves ${...} placeholders against
  * {@link #setLocation local} {@link #setProperties properties} and/or system properties
  * and environment variables.
@@ -45,10 +46,10 @@ import org.springframework.util.StringValueResolver;
  *
  * @author Juergen Hoeller
  * @author Chris Beams
- * @since 02.10.2003
  * @see #setSystemPropertiesModeName
  * @see PlaceholderConfigurerSupport
  * @see PropertyOverrideConfigurer
+ * @since 02.10.2003
  * @deprecated as of 5.2; use {@code org.springframework.context.support.PropertySourcesPlaceholderConfigurer}
  * instead which is more flexible through taking advantage of the {@link org.springframework.core.env.Environment}
  * and {@link org.springframework.core.env.PropertySource} mechanisms.
@@ -56,7 +57,9 @@ import org.springframework.util.StringValueResolver;
 @Deprecated
 public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport {
 
-	/** Never check system properties. */
+	/**
+	 * Never check system properties.
+	 */
 	public static final int SYSTEM_PROPERTIES_MODE_NEVER = 0;
 
 	/**
@@ -83,6 +86,7 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 	/**
 	 * Set the system property mode by the name of the corresponding constant,
 	 * e.g. "SYSTEM_PROPERTIES_MODE_OVERRIDE".
+	 *
 	 * @param constantName name of the constant
 	 * @see #setSystemPropertiesMode
 	 */
@@ -97,6 +101,7 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 	 * with the specified properties, a system property will be tried.
 	 * "override" will check for a system property first, before trying the
 	 * specified properties. "never" will not check system properties at all.
+	 *
 	 * @see #SYSTEM_PROPERTIES_MODE_NEVER
 	 * @see #SYSTEM_PROPERTIES_MODE_FALLBACK
 	 * @see #SYSTEM_PROPERTIES_MODE_OVERRIDE
@@ -115,6 +120,7 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 	 * against system environment variables. Note that it is generally recommended
 	 * to pass external values in as JVM system properties: This can easily be
 	 * achieved in a startup script, even for existing environment variables.
+	 *
 	 * @see #setSystemPropertiesMode
 	 * @see System#getProperty(String)
 	 * @see System#getenv(String)
@@ -130,10 +136,11 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 	 * (placeholder, props)} before/after the system properties check.
 	 * <p>Subclasses can override this for custom resolution strategies,
 	 * including customized points for the system properties check.
-	 * @param placeholder the placeholder to resolve
-	 * @param props the merged properties of this configurer
+	 *
+	 * @param placeholder          the placeholder to resolve
+	 * @param props                the merged properties of this configurer
 	 * @param systemPropertiesMode the system properties mode,
-	 * according to the constants in this class
+	 *                             according to the constants in this class
 	 * @return the resolved value, of null if none
 	 * @see #setSystemPropertiesMode
 	 * @see System#getProperty
@@ -162,8 +169,9 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 	 * as fallback.
 	 * <p>Note that system properties will still be checked before respectively
 	 * after this method is invoked, according to the system properties mode.
+	 *
 	 * @param placeholder the placeholder to resolve
-	 * @param props the merged properties of this configurer
+	 * @param props       the merged properties of this configurer
 	 * @return the resolved value, of {@code null} if none
 	 * @see #setSystemPropertiesMode
 	 */
@@ -175,6 +183,7 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 	/**
 	 * Resolve the given key as JVM system property, and optionally also as
 	 * system environment variable if no matching system property has been found.
+	 *
 	 * @param key the placeholder to resolve as system property key
 	 * @return the system property value, or {@code null} if not found
 	 * @see #setSearchSystemEnvironment
@@ -189,8 +198,7 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 				value = System.getenv(key);
 			}
 			return value;
-		}
-		catch (Throwable ex) {
+		} catch (Throwable ex) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Could not access system property '" + key + "': " + ex);
 			}
@@ -206,8 +214,9 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 	@Override
 	protected void processProperties(ConfigurableListableBeanFactory beanFactoryToProcess, Properties props)
 			throws BeansException {
-
+		// 创建 StringValueResolver 对象
 		StringValueResolver valueResolver = new PlaceholderResolvingStringValueResolver(props);
+		// 处理
 		doProcessProperties(beanFactoryToProcess, valueResolver);
 	}
 
@@ -227,10 +236,13 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 		@Override
 		@Nullable
 		public String resolveStringValue(String strVal) throws BeansException {
+			// 解析真值
 			String resolved = this.helper.replacePlaceholders(strVal, this.resolver);
+			// trim
 			if (trimValues) {
 				resolved = resolved.trim();
 			}
+			// 返回真值
 			return (resolved.equals(nullValue) ? null : resolved);
 		}
 	}

@@ -116,7 +116,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 				instance = BeanUtils.instantiateClass(subclass);
 			} else {
 				try {
-					// 获取代理类对应的构造器对象,并实例话 bean
+					// 获取代理类对应的构造器对象,并实例化 bean
 					Constructor<?> enhancedSubclassConstructor = subclass.getConstructor(ctor.getParameterTypes());
 					instance = enhancedSubclassConstructor.newInstance(args);
 				} catch (Exception ex) {
@@ -139,14 +139,20 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 		 * definition, using CGLIB.
 		 */
 		private Class<?> createEnhancedSubclass(RootBeanDefinition beanDefinition) {
+			// 创建 CGLIB Enhancer 对象
 			Enhancer enhancer = new Enhancer();
+			// 设置继承的对象（CGLIB 使用继承生成代理类）
 			enhancer.setSuperclass(beanDefinition.getBeanClass());
+			// 设置 Spring 的命名规则
 			enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);
+			// 设置生成策略
 			if (this.owner instanceof ConfigurableBeanFactory) {
 				ClassLoader cl = ((ConfigurableBeanFactory) this.owner).getBeanClassLoader();
 				enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(cl));
 			}
+			// 过滤，自定义逻辑来指定调用的 callback
 			enhancer.setCallbackFilter(new MethodOverrideCallbackFilter(beanDefinition));
+			// callback 下标
 			enhancer.setCallbackTypes(CALLBACK_TYPES);
 			return enhancer.createClass();
 		}
@@ -196,6 +202,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 
 		@Override
 		public int accept(Method method) {
+			// 获取是否有 MethodOverride
 			MethodOverride methodOverride = getBeanDefinition().getMethodOverrides().getOverride(method);
 			if (logger.isTraceEnabled()) {
 				logger.trace("MethodOverride for " + method + ": " + methodOverride);
@@ -229,9 +236,12 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 		@Override
 		public Object intercept(Object obj, Method method, Object[] args, MethodProxy mp) throws Throwable {
 			// Cast is safe, as CallbackFilter filters are used selectively.
+			// 获得 LookupOverride 对象
 			LookupOverride lo = (LookupOverride) getBeanDefinition().getMethodOverrides().getOverride(method);
 			Assert.state(lo != null, "LookupOverride not found");
+			// 获得参数
 			Object[] argsToUse = (args.length > 0 ? args : null);  // if no-arg, don't insist on args at all
+			// 获得 bean
 			if (StringUtils.hasText(lo.getBeanName())) {
 				return (argsToUse != null ? this.owner.getBean(lo.getBeanName(), argsToUse) :
 						this.owner.getBean(lo.getBeanName()));

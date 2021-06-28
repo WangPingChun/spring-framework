@@ -19,15 +19,16 @@ package org.springframework.core.env;
 import org.springframework.lang.Nullable;
 
 /**
+ * PropertyResolver 的实现着，他对一组 PropertySource 提供属性解析服务。
  * {@link PropertyResolver} implementation that resolves property values against
  * an underlying set of {@link PropertySources}.
  *
  * @author Chris Beams
  * @author Juergen Hoeller
- * @since 3.1
  * @see PropertySource
  * @see PropertySources
  * @see AbstractEnvironment
+ * @since 3.1
  */
 public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 
@@ -37,6 +38,7 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 
 	/**
 	 * Create a new resolver against the given property sources.
+	 *
 	 * @param propertySources the set of {@link PropertySource} objects to use
 	 */
 	public PropertySourcesPropertyResolver(@Nullable PropertySources propertySources) {
@@ -77,17 +79,22 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 	@Nullable
 	protected <T> T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
 		if (this.propertySources != null) {
+			// 遍历 propertySources 数组
 			for (PropertySource<?> propertySource : this.propertySources) {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Searching for key '" + key + "' in PropertySource '" +
 							propertySource.getName() + "'");
 				}
+				// 获得 key 对应的 value 值
 				Object value = propertySource.getProperty(key);
 				if (value != null) {
+					// 需要解决嵌套占位符，解析占位符
 					if (resolveNestedPlaceholders && value instanceof String) {
 						value = resolveNestedPlaceholders((String) value);
 					}
+					// 日志打印
 					logKeyFound(key, propertySource, value);
+					// value 的类型转换
 					return convertValueIfNecessary(value, targetValueType);
 				}
 			}
@@ -105,9 +112,10 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 	 * As of 4.3.3, this does not log the value anymore in order to avoid accidental
 	 * logging of sensitive settings. Subclasses may override this method to change
 	 * the log level and/or log message, including the property's value if desired.
-	 * @param key the key found
+	 *
+	 * @param key            the key found
 	 * @param propertySource the {@code PropertySource} that the key has been found in
-	 * @param value the corresponding value
+	 * @param value          the corresponding value
 	 * @since 4.3.1
 	 */
 	protected void logKeyFound(String key, PropertySource<?> propertySource, Object value) {

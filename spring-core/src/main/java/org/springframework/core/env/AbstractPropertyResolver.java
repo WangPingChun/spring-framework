@@ -16,13 +16,8 @@
 
 package org.springframework.core.env;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.ConfigurableConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -32,7 +27,12 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.PropertyPlaceholderHelper;
 import org.springframework.util.SystemPropertyUtils;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
+ * 解析属性文件的抽象基类。
  * Abstract base class for resolving properties against any underlying source.
  *
  * @author Chris Beams
@@ -42,25 +42,40 @@ import org.springframework.util.SystemPropertyUtils;
 public abstract class AbstractPropertyResolver implements ConfigurablePropertyResolver {
 
 	protected final Log logger = LogFactory.getLog(getClass());
-
+	/**
+	 * 类型转换。
+	 */
 	@Nullable
 	private volatile ConfigurableConversionService conversionService;
-
+	/**
+	 * 占位符
+	 */
 	@Nullable
 	private PropertyPlaceholderHelper nonStrictHelper;
 
 	@Nullable
 	private PropertyPlaceholderHelper strictHelper;
 
+	/**
+	 * 设置是否抛出异常。
+	 */
 	private boolean ignoreUnresolvableNestedPlaceholders = false;
-
+	/**
+	 * 占位符前缀。
+	 */
 	private String placeholderPrefix = SystemPropertyUtils.PLACEHOLDER_PREFIX;
-
+	/**
+	 * 占位符后缀。
+	 */
 	private String placeholderSuffix = SystemPropertyUtils.PLACEHOLDER_SUFFIX;
-
+	/**
+	 * 与默认值的分隔。
+	 */
 	@Nullable
 	private String valueSeparator = SystemPropertyUtils.VALUE_SEPARATOR;
-
+	/**
+	 * 必须要有的字段值。
+	 */
 	private final Set<String> requiredProperties = new LinkedHashSet<>();
 
 
@@ -90,6 +105,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	/**
 	 * Set the prefix that placeholders replaced by this resolver must begin with.
 	 * <p>The default is "${".
+	 *
 	 * @see org.springframework.util.SystemPropertyUtils#PLACEHOLDER_PREFIX
 	 */
 	@Override
@@ -101,6 +117,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	/**
 	 * Set the suffix that placeholders replaced by this resolver must end with.
 	 * <p>The default is "}".
+	 *
 	 * @see org.springframework.util.SystemPropertyUtils#PLACEHOLDER_SUFFIX
 	 */
 	@Override
@@ -114,6 +131,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	 * resolver and their associated default value, or {@code null} if no such
 	 * special character should be processed as a value separator.
 	 * <p>The default is ":".
+	 *
 	 * @see org.springframework.util.SystemPropertyUtils#VALUE_SEPARATOR
 	 */
 	@Override
@@ -128,6 +146,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	 * that unresolvable nested placeholders should be passed through in their unresolved
 	 * ${...} form.
 	 * <p>The default is {@code false}.
+	 *
 	 * @since 3.2
 	 */
 	@Override
@@ -219,15 +238,15 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	 * {@link #resolveRequiredPlaceholders} do <i>not</i> delegate
 	 * to this method but rather perform their own handling of unresolvable
 	 * placeholders, as specified by each of those methods.
-	 * @since 3.2
+	 *
 	 * @see #setIgnoreUnresolvableNestedPlaceholders
+	 * @since 3.2
 	 */
 	protected String resolveNestedPlaceholders(String value) {
 		if (value.isEmpty()) {
 			return value;
 		}
-		return (this.ignoreUnresolvableNestedPlaceholders ?
-				resolvePlaceholders(value) : resolveRequiredPlaceholders(value));
+		return (this.ignoreUnresolvableNestedPlaceholders ? resolvePlaceholders(value) : resolveRequiredPlaceholders(value));
 	}
 
 	private PropertyPlaceholderHelper createPlaceholderHelper(boolean ignoreUnresolvablePlaceholders) {
@@ -241,7 +260,8 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 
 	/**
 	 * Convert the given value to the specified target type, if necessary.
-	 * @param value the original property value
+	 *
+	 * @param value      the original property value
 	 * @param targetType the specified target type for property retrieval
 	 * @return the converted value, or the original value if no conversion
 	 * is necessary
@@ -262,6 +282,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 			}
 			conversionServiceToUse = DefaultConversionService.getSharedInstance();
 		}
+		// 执行转换
 		return conversionServiceToUse.convert(value, targetType);
 	}
 
@@ -269,6 +290,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	/**
 	 * Retrieve the specified property as a raw String,
 	 * i.e. without resolution of nested placeholders.
+	 *
 	 * @param key the property name to resolve
 	 * @return the property value or {@code null} if none found
 	 */

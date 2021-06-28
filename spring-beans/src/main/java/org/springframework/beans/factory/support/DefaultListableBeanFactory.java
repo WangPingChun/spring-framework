@@ -45,6 +45,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
+ * 一个基于 BeanDefinition 元数据的完整 bean 工厂。
  * Spring's default implementation of the {@link ConfigurableListableBeanFactory}
  * and {@link BeanDefinitionRegistry} interfaces: a full-fledged bean factory
  * based on bean definition metadata, extensible through post-processors.

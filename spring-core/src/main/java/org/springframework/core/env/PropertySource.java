@@ -24,6 +24,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * 属性源， key - value 属性对抽象，用于配置数据。
  * Abstract base class representing a source of name/value property pairs. The underlying
  * {@linkplain #getSource() source object} may be of any type {@code T} that encapsulates
  * properties. Examples include {@link java.util.Properties} objects, {@link java.util.Map}

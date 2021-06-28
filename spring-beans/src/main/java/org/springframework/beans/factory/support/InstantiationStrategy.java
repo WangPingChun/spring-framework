@@ -16,14 +16,16 @@
 
 package org.springframework.beans.factory.support;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.lang.Nullable;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+
 /**
+ * 定义了 Spring Bean 实例化策略，根据创建对象情况的不同，提供了三种策略：无参构造方法、有参构造方法、
+ * 工厂方法。
  * Interface responsible for creating instances corresponding to a root bean definition.
  *
  * <p>This is pulled out into a strategy as various approaches are possible,
@@ -36,12 +38,14 @@ import org.springframework.lang.Nullable;
 public interface InstantiationStrategy {
 
 	/**
+	 * 默认构造方法。
 	 * Return an instance of the bean with the given name in this factory.
-	 * @param bd the bean definition
+	 *
+	 * @param bd       the bean definition
 	 * @param beanName the name of the bean when it is created in this context.
-	 * The name can be {@code null} if we are autowiring a bean which doesn't
-	 * belong to the factory.
-	 * @param owner the owning BeanFactory
+	 *                 The name can be {@code null} if we are autowiring a bean which doesn't
+	 *                 belong to the factory.
+	 * @param owner    the owning BeanFactory
 	 * @return a bean instance for this bean definition
 	 * @throws BeansException if the instantiation attempt failed
 	 */
@@ -49,38 +53,42 @@ public interface InstantiationStrategy {
 			throws BeansException;
 
 	/**
+	 * 指定构造方法。
 	 * Return an instance of the bean with the given name in this factory,
 	 * creating it via the given constructor.
-	 * @param bd the bean definition
+	 *
+	 * @param bd       the bean definition
 	 * @param beanName the name of the bean when it is created in this context.
-	 * The name can be {@code null} if we are autowiring a bean which doesn't
-	 * belong to the factory.
-	 * @param owner the owning BeanFactory
-	 * @param ctor the constructor to use
-	 * @param args the constructor arguments to apply
+	 *                 The name can be {@code null} if we are autowiring a bean which doesn't
+	 *                 belong to the factory.
+	 * @param owner    the owning BeanFactory
+	 * @param ctor     the constructor to use
+	 * @param args     the constructor arguments to apply
 	 * @return a bean instance for this bean definition
 	 * @throws BeansException if the instantiation attempt failed
 	 */
 	Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
-			Constructor<?> ctor, Object... args) throws BeansException;
+					   Constructor<?> ctor, Object... args) throws BeansException;
 
 	/**
+	 * 工厂方法。
 	 * Return an instance of the bean with the given name in this factory,
 	 * creating it via the given factory method.
-	 * @param bd the bean definition
-	 * @param beanName the name of the bean when it is created in this context.
-	 * The name can be {@code null} if we are autowiring a bean which doesn't
-	 * belong to the factory.
-	 * @param owner the owning BeanFactory
-	 * @param factoryBean the factory bean instance to call the factory method on,
-	 * or {@code null} in case of a static factory method
+	 *
+	 * @param bd            the bean definition
+	 * @param beanName      the name of the bean when it is created in this context.
+	 *                      The name can be {@code null} if we are autowiring a bean which doesn't
+	 *                      belong to the factory.
+	 * @param owner         the owning BeanFactory
+	 * @param factoryBean   the factory bean instance to call the factory method on,
+	 *                      or {@code null} in case of a static factory method
 	 * @param factoryMethod the factory method to use
-	 * @param args the factory method arguments to apply
+	 * @param args          the factory method arguments to apply
 	 * @return a bean instance for this bean definition
 	 * @throws BeansException if the instantiation attempt failed
 	 */
 	Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
-			@Nullable Object factoryBean, Method factoryMethod, Object... args)
+					   @Nullable Object factoryBean, Method factoryMethod, Object... args)
 			throws BeansException;
 
 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="userServiceImpl" class="org.springframework.aop.UserServiceImpl"/>
+	<bean id="orderServiceImpl" class="org.springframework.aop.OrderServiceImpl"/>
+
+	<bean id="logArgsAdvice" class="org.springframework.aop.LogArgsAdvice"/>
+	<bean id="logResultAdvice" class="org.springframework.aop.LogResultAdvice"/>
+
+	<bean id="logArgsAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+		<property name="advice" ref="logArgsAdvice"/>
+		<property name="pattern" value="org.springframework.aop.*.create.*"/>
+	</bean>
+	<bean id="logResultAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+		<property name="advice" ref="logResultAdvice"/>
+		<property name="pattern" value="org.springframework.aop.*.query.*"/>
+	</bean>
+
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+</beans>

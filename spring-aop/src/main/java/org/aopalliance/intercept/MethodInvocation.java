@@ -16,11 +16,11 @@
 
 package org.aopalliance.intercept;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
 
-import javax.annotation.Nonnull;
-
 /**
+ * 方法调用。
  * Description of an invocation to a method, given to an interceptor
  * upon method-call.
  *
@@ -36,6 +36,7 @@ public interface MethodInvocation extends Invocation {
 	 * Get the method being called.
 	 * <p>This method is a friendly implementation of the
 	 * {@link Joinpoint#getStaticPart()} method (same result).
+	 *
 	 * @return the method being called
 	 */
 	@Nonnull

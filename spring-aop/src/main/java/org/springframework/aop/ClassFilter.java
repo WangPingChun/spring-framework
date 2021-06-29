@@ -36,7 +36,9 @@ package org.springframework.aop;
 public interface ClassFilter {
 
 	/**
+	 * 当前类过滤器是否与指定的类型匹配，如果匹配则需要把自身内部持有的 Advice 应用到目标类上。
 	 * Should the pointcut apply to the given interface or target class?
+	 *
 	 * @param clazz the candidate target class
 	 * @return whether the advice should apply to the given target class
 	 */

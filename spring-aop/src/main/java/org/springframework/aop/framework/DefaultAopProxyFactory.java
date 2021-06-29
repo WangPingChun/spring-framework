@@ -16,10 +16,10 @@
 
 package org.springframework.aop.framework;
 
+import org.springframework.aop.SpringProxy;
+
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
-
-import org.springframework.aop.SpringProxy;
 
 /**
  * Default {@link AopProxyFactory} implementation, creating either a CGLIB proxy
@@ -39,10 +39,10 @@ import org.springframework.aop.SpringProxy;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
- * @since 12.03.2004
  * @see AdvisedSupport#setOptimize
  * @see AdvisedSupport#setProxyTargetClass
  * @see AdvisedSupport#setInterfaces
+ * @since 12.03.2004
  */
 @SuppressWarnings("serial")
 public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
@@ -50,6 +50,7 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 	/**
 	 * Whether this environment lives within a native image.
 	 * Exposed as a private static field rather than in a {@code NativeImageDetector.inNativeImage()} static method due to https://github.com/oracle/graal/issues/2594.
+	 *
 	 * @see <a href="https://github.com/oracle/graal/blob/master/sdk/src/org.graalvm.nativeimage/src/org/graalvm/nativeimage/ImageInfo.java">ImageInfo.java</a>
 	 */
 	private static final boolean IN_NATIVE_IMAGE = (System.getProperty("org.graalvm.nativeimage.imagecode") != null);
@@ -57,8 +58,12 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 
 	@Override
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
-		if (!IN_NATIVE_IMAGE &&
-				(config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config))) {
+		/*
+		 * 条件1：config.isOptimize() - 是否需要优化，这个属性没怎么用过，细节我不是很清楚
+		 * 条件2：config.isProxyTargetClass() - 检测 proxyTargetClass 的值， 前面的代码会设置这个值
+		 * 条件3：hasNoUserSuppliedProxyInterfaces(config) - 目标 bean 是否实现了接口
+		 */
+		if (!IN_NATIVE_IMAGE && (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config))) {
 			Class<?> targetClass = config.getTargetClass();
 			if (targetClass == null) {
 				throw new AopConfigException("TargetSource cannot determine target class: " +
@@ -67,9 +72,10 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 			if (targetClass.isInterface() || Proxy.isProxyClass(targetClass)) {
 				return new JdkDynamicAopProxy(config);
 			}
+			// 创建 CGLIB 代理 ObjenesisCglibAopProxy 继承自 CglibAopProxy
 			return new ObjenesisCglibAopProxy(config);
-		}
-		else {
+		} else {
+			// 创建 JDK 动态代理
 			return new JdkDynamicAopProxy(config);
 		}
 	}

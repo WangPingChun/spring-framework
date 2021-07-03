@@ -321,7 +321,9 @@ public abstract class AopUtils {
 		}
 		List<Advisor> eligibleAdvisors = new ArrayList<>();
 		for (Advisor candidate : candidateAdvisors) {
-			// 筛选 IntroductionAdvisor 类型的通知器
+			// 筛选 IntroductionAdvisor 类型的通知器(引介增强)
+			// 引介增强：一种比较特殊的增强类型，它不是在目标方法周围织入增强，而是为目标类创建新的方法和属性，所以引介增强的连接点是类
+			// 级别的，而非方法级别。
 			if (candidate instanceof IntroductionAdvisor && canApply(candidate, clazz)) {
 				eligibleAdvisors.add(candidate);
 			}

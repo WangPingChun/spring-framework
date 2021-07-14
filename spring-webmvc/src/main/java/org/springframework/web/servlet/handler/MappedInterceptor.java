@@ -16,11 +16,6 @@
 
 package org.springframework.web.servlet.handler;
 
-import java.util.Arrays;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.http.server.PathContainer;
 import org.springframework.lang.Nullable;
 import org.springframework.util.AntPathMatcher;
@@ -35,7 +30,12 @@ import org.springframework.web.util.UrlPathHelper;
 import org.springframework.web.util.pattern.PathPattern;
 import org.springframework.web.util.pattern.PathPatternParser;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+
 /**
+ * 支持地址匹配的 HandlerInterceptor 实线类.
  * Wraps a {@link HandlerInterceptor} and uses URL patterns to determine whether
  * it applies to a given request.
  *
@@ -62,31 +62,40 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
 	private static PathMatcher defaultPathMatcher = new AntPathMatcher();
 
-
+	/**
+	 * 匹配的路径
+	 */
 	@Nullable
 	private final PathPattern[] includePatterns;
-
+	/**
+	 * 不匹配的路径
+	 */
 	@Nullable
 	private final PathPattern[] excludePatterns;
-
+	/**
+	 * 路径匹配器
+	 */
 	private PathMatcher pathMatcher = defaultPathMatcher;
-
+	/**
+	 * 拦截器对象
+	 */
 	private final HandlerInterceptor interceptor;
 
 
 	/**
 	 * Create an instance with the given include and exclude patterns along with
 	 * the target interceptor for the mappings.
+	 *
 	 * @param includePatterns patterns to which requests must match, or null to
-	 * match all paths
+	 *                        match all paths
 	 * @param excludePatterns patterns to which requests must not match
-	 * @param interceptor the target interceptor
-	 * @param parser a parser to use to pre-parse patterns into {@link PathPattern};
-	 * when not provided, {@link PathPatternParser#defaultInstance} is used.
+	 * @param interceptor     the target interceptor
+	 * @param parser          a parser to use to pre-parse patterns into {@link PathPattern};
+	 *                        when not provided, {@link PathPatternParser#defaultInstance} is used.
 	 * @since 5.3
 	 */
 	public MappedInterceptor(@Nullable String[] includePatterns, @Nullable String[] excludePatterns,
-			HandlerInterceptor interceptor, @Nullable PathPatternParser parser) {
+							 HandlerInterceptor interceptor, @Nullable PathPatternParser parser) {
 
 		this.includePatterns = initPatterns(includePatterns, parser);
 		this.excludePatterns = initPatterns(excludePatterns, parser);
@@ -119,7 +128,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
 	 * without a provided parser.
 	 */
 	public MappedInterceptor(@Nullable String[] includePatterns, @Nullable String[] excludePatterns,
-			HandlerInterceptor interceptor) {
+							 HandlerInterceptor interceptor) {
 
 		this(includePatterns, excludePatterns, interceptor, null);
 	}
@@ -139,7 +148,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
 	 * with a {@link WebRequestInterceptor} as the target.
 	 */
 	public MappedInterceptor(@Nullable String[] includePatterns, @Nullable String[] excludePatterns,
-			WebRequestInterceptor interceptor) {
+							 WebRequestInterceptor interceptor) {
 
 		this(includePatterns, excludePatterns, new WebRequestHandlerInterceptorAdapter(interceptor));
 	}
@@ -189,6 +198,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
 	 * Check whether this interceptor is mapped to the request.
 	 * <p>The request mapping path is expected to have been resolved externally.
 	 * See also class-level Javadoc.
+	 *
 	 * @param request the request to match to
 	 * @return {@code true} if the interceptor should be applied to the request
 	 */
@@ -200,11 +210,13 @@ public final class MappedInterceptor implements HandlerInterceptor {
 		boolean isPathContainer = (path instanceof PathContainer);
 		if (!ObjectUtils.isEmpty(this.excludePatterns)) {
 			for (PathPattern pattern : this.excludePatterns) {
+				// 匹配
 				if (matchPattern(path, isPathContainer, pattern)) {
 					return false;
 				}
 			}
 		}
+		// 如果"匹配的路径"为空，则默认全部包含
 		if (ObjectUtils.isEmpty(this.includePatterns)) {
 			return true;
 		}
@@ -224,7 +236,8 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
 	/**
 	 * Determine a match for the given lookup path.
-	 * @param lookupPath the current request path
+	 *
+	 * @param lookupPath  the current request path
 	 * @param pathMatcher a path matcher for path pattern matching
 	 * @return {@code true} if the interceptor applies to the given request path
 	 * @deprecated as of 5.3 in favor of {@link #matches(HttpServletRequest)}
@@ -262,14 +275,14 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-			@Nullable ModelAndView modelAndView) throws Exception {
+						   @Nullable ModelAndView modelAndView) throws Exception {
 
 		this.interceptor.postHandle(request, response, handler, modelAndView);
 	}
 
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
-			@Nullable Exception ex) throws Exception {
+								@Nullable Exception ex) throws Exception {
 
 		this.interceptor.afterCompletion(request, response, handler, ex);
 	}

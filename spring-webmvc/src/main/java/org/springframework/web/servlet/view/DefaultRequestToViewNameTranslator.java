@@ -16,14 +16,14 @@
 
 package org.springframework.web.servlet.view;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.RequestToViewNameTranslator;
 import org.springframework.web.util.ServletRequestPathUtils;
 import org.springframework.web.util.UrlPathHelper;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * {@link RequestToViewNameTranslator} that simply transforms the URI of
@@ -51,30 +51,45 @@ import org.springframework.web.util.UrlPathHelper;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
- * @since 2.0
  * @see org.springframework.web.servlet.RequestToViewNameTranslator
  * @see org.springframework.web.servlet.ViewResolver
+ * @since 2.0
  */
 public class DefaultRequestToViewNameTranslator implements RequestToViewNameTranslator {
 
 	private static final String SLASH = "/";
 
-
+	/**
+	 * 前缀
+	 */
 	private String prefix = "";
 
+	/**
+	 * 后缀
+	 */
 	private String suffix = "";
 
+	/**
+	 * 分隔符
+	 */
 	private String separator = SLASH;
-
+	/**
+	 * 是否移除开头 {@link #SLASH}
+	 */
 	private boolean stripLeadingSlash = true;
-
+	/**
+	 * 是否移除末尾 {@link #SLASH}
+	 */
 	private boolean stripTrailingSlash = true;
-
+	/**
+	 * 是否移除拓展名
+	 */
 	private boolean stripExtension = true;
 
 
 	/**
 	 * Set the prefix to prepend to generated view names.
+	 *
 	 * @param prefix the prefix to prepend to generated view names
 	 */
 	public void setPrefix(@Nullable String prefix) {
@@ -83,6 +98,7 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
 
 	/**
 	 * Set the suffix to append to generated view names.
+	 *
 	 * @param suffix the suffix to append to generated view names
 	 */
 	public void setSuffix(@Nullable String suffix) {
@@ -124,6 +140,7 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
 
 	/**
 	 * Shortcut to same property on underlying {@link #setUrlPathHelper UrlPathHelper}.
+	 *
 	 * @see org.springframework.web.util.UrlPathHelper#setAlwaysUseFullPath
 	 * @deprecated as of 5.3, the path is resolved externally and obtained with
 	 * {@link ServletRequestPathUtils#getCachedPathValue(ServletRequest)}
@@ -134,6 +151,7 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
 
 	/**
 	 * Shortcut to same property on underlying {@link #setUrlPathHelper UrlPathHelper}.
+	 *
 	 * @see org.springframework.web.util.UrlPathHelper#setUrlDecode
 	 * @deprecated as of 5.3, the path is resolved externally and obtained with
 	 * {@link ServletRequestPathUtils#getCachedPathValue(ServletRequest)}
@@ -144,6 +162,7 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
 
 	/**
 	 * Set if ";" (semicolon) content should be stripped from the request URI.
+	 *
 	 * @see org.springframework.web.util.UrlPathHelper#setRemoveSemicolonContent(boolean)
 	 * @deprecated as of 5.3, the path is resolved externally and obtained with
 	 * {@link ServletRequestPathUtils#getCachedPathValue(ServletRequest)}
@@ -157,6 +176,7 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
 	 * the resolution of lookup paths.
 	 * <p>Use this to override the default UrlPathHelper with a custom subclass,
 	 * or to share common UrlPathHelper settings across multiple web components.
+	 *
 	 * @deprecated as of 5.3, the path is resolved externally and obtained with
 	 * {@link ServletRequestPathUtils#getCachedPathValue(ServletRequest)}
 	 */
@@ -168,37 +188,45 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
 	/**
 	 * Translates the request URI of the incoming {@link HttpServletRequest}
 	 * into the view name based on the configured parameters.
+	 *
+	 * @throws IllegalArgumentException if neither a parsed RequestPath, nor a
+	 *                                  String lookupPath have been resolved and cached as a request attribute.
 	 * @see ServletRequestPathUtils#getCachedPath(ServletRequest)
 	 * @see #transformPath
-	 * @throws IllegalArgumentException if neither a parsed RequestPath, nor a
-	 * String lookupPath have been resolved and cached as a request attribute.
 	 */
 	@Override
 	public String getViewName(HttpServletRequest request) {
+		// 获得请求路径
 		String path = ServletRequestPathUtils.getCachedPathValue(request);
+		// 获得视图名
 		return (this.prefix + transformPath(path) + this.suffix);
 	}
 
 	/**
 	 * Transform the request URI (in the context of the webapp) stripping
 	 * slashes and extensions, and replacing the separator as required.
+	 *
 	 * @param lookupPath the lookup path for the current request,
-	 * as determined by the UrlPathHelper
+	 *                   as determined by the UrlPathHelper
 	 * @return the transformed path, with slashes and extensions stripped
 	 * if desired
 	 */
 	@Nullable
 	protected String transformPath(String lookupPath) {
 		String path = lookupPath;
+		// 移除开头 SLASH
 		if (this.stripLeadingSlash && path.startsWith(SLASH)) {
 			path = path.substring(1);
 		}
+		// 移除末尾 SLASH
 		if (this.stripTrailingSlash && path.endsWith(SLASH)) {
 			path = path.substring(0, path.length() - 1);
 		}
+		// 移除扩展名
 		if (this.stripExtension) {
 			path = StringUtils.stripFilenameExtension(path);
 		}
+		// 替换分隔符
 		if (!SLASH.equals(this.separator)) {
 			path = StringUtils.replace(path, SLASH, this.separator);
 		}

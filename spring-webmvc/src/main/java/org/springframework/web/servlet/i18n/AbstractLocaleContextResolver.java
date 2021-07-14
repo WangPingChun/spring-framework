@@ -16,17 +16,18 @@
 
 package org.springframework.web.servlet.i18n;
 
-import java.util.Locale;
-import java.util.TimeZone;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.context.i18n.SimpleLocaleContext;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.LocaleContextResolver;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Locale;
+import java.util.TimeZone;
+
 /**
+ * LocaleContextResolver 实现的抽象基类:提供对默认语言环境和默认时区的支持，
+ * 还提供了 resolveLocale 和 setLocale 的预实现版本，委托给 resolveLocaleContext 和 setLocaleContext
  * Abstract base class for {@link LocaleContextResolver} implementations.
  * Provides support for a default locale and a default time zone.
  *
@@ -34,9 +35,9 @@ import org.springframework.web.servlet.LocaleContextResolver;
  * delegating to {@link #resolveLocaleContext} and {@link #setLocaleContext}.
  *
  * @author Juergen Hoeller
- * @since 4.0
  * @see #setDefaultLocale
  * @see #setDefaultTimeZone
+ * @since 4.0
  */
 public abstract class AbstractLocaleContextResolver extends AbstractLocaleResolver implements LocaleContextResolver {
 

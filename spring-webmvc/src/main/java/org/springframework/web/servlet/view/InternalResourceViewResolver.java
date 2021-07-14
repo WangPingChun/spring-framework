@@ -20,6 +20,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 
 /**
+ * 解析出 JSP 的 ViewResolver 实现类
  * Convenient subclass of {@link UrlBasedViewResolver} that supports
  * {@link InternalResourceView} (i.e. Servlets and JSPs) and subclasses
  * such as {@link JstlView}.
@@ -38,16 +39,18 @@ import org.springframework.util.ClassUtils;
  * no matter whether the underlying resource actually exists.
  *
  * @author Juergen Hoeller
- * @since 17.02.2003
  * @see #setViewClass
  * @see #setPrefix
  * @see #setSuffix
  * @see #setRequestContextAttribute
  * @see InternalResourceView
  * @see JstlView
+ * @since 17.02.2003
  */
 public class InternalResourceViewResolver extends UrlBasedViewResolver {
-
+	/**
+	 * 判断 javax.servlet.jsp.jstl.core.Config 是否存在
+	 */
 	private static final boolean jstlPresent = ClassUtils.isPresent(
 			"javax.servlet.jsp.jstl.core.Config", InternalResourceViewResolver.class.getClassLoader());
 
@@ -61,16 +64,19 @@ public class InternalResourceViewResolver extends UrlBasedViewResolver {
 	 * is present.
 	 */
 	public InternalResourceViewResolver() {
+		// 获得 viewClass
 		Class<?> viewClass = requiredViewClass();
 		if (InternalResourceView.class == viewClass && jstlPresent) {
 			viewClass = JstlView.class;
 		}
+		// 设置 viewClass
 		setViewClass(viewClass);
 	}
 
 	/**
 	 * A convenience constructor that allows for specifying {@link #setPrefix prefix}
 	 * and {@link #setSuffix suffix} as constructor arguments.
+	 *
 	 * @param prefix the prefix that gets prepended to view names when building a URL
 	 * @param suffix the suffix that gets appended to view names when building a URL
 	 * @since 4.3
@@ -94,6 +100,7 @@ public class InternalResourceViewResolver extends UrlBasedViewResolver {
 	 * Specify whether to always include the view rather than forward to it.
 	 * <p>Default is "false". Switch this flag on to enforce the use of a
 	 * Servlet include, even if a forward would be possible.
+	 *
 	 * @see InternalResourceView#setAlwaysInclude
 	 */
 	public void setAlwaysInclude(boolean alwaysInclude) {
@@ -103,7 +110,9 @@ public class InternalResourceViewResolver extends UrlBasedViewResolver {
 
 	@Override
 	protected AbstractUrlBasedView buildView(String viewName) throws Exception {
+		// 调用父方法
 		InternalResourceView view = (InternalResourceView) super.buildView(viewName);
+		// 设置 View 对象的相关属性
 		if (this.alwaysInclude != null) {
 			view.setAlwaysInclude(this.alwaysInclude);
 		}

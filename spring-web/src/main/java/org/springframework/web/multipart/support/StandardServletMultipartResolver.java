@@ -16,17 +16,17 @@
 
 package org.springframework.web.multipart.support;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
-
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
+
 /**
+ * 使用 Servlet 3.0 标准的上传 API 的 MultipartResolver 实现类
  * Standard implementation of the {@link MultipartResolver} interface,
  * based on the Servlet 3.0 {@link javax.servlet.http.Part} API.
  * To be added as "multipartResolver" bean to a Spring DispatcherServlet context,
@@ -43,9 +43,9 @@ import org.springframework.web.multipart.MultipartResolver;
  *
  * <pre class="code">
  * public class AppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
- *	 // ...
- *	 &#064;Override
- *	 protected void customizeRegistration(ServletRegistration.Dynamic registration) {
+ * 	 // ...
+ * 	 &#064;Override
+ * 	 protected void customizeRegistration(ServletRegistration.Dynamic registration) {
  *     // Optionally also set maxFileSize, maxRequestSize, fileSizeThreshold
  *     registration.setMultipartConfig(new MultipartConfigElement("/tmp"));
  *   }
@@ -53,13 +53,15 @@ import org.springframework.web.multipart.MultipartResolver;
  * </pre>
  *
  * @author Juergen Hoeller
- * @since 3.1
  * @see #setResolveLazily
  * @see HttpServletRequest#getParts()
  * @see org.springframework.web.multipart.commons.CommonsMultipartResolver
+ * @since 3.1
  */
 public class StandardServletMultipartResolver implements MultipartResolver {
-
+	/**
+	 * 是否延迟解析
+	 */
 	private boolean resolveLazily = false;
 
 
@@ -70,6 +72,7 @@ public class StandardServletMultipartResolver implements MultipartResolver {
 	 * corresponding exceptions at the time of the {@link #resolveMultipart} call.
 	 * Switch this to "true" for lazy multipart parsing, throwing parse exceptions
 	 * once the application attempts to obtain multipart files or parameters.
+	 *
 	 * @since 3.2.9
 	 */
 	public void setResolveLazily(boolean resolveLazily) {
@@ -79,11 +82,13 @@ public class StandardServletMultipartResolver implements MultipartResolver {
 
 	@Override
 	public boolean isMultipart(HttpServletRequest request) {
+		// 校验 Content-Type 的前缀
 		return StringUtils.startsWithIgnoreCase(request.getContentType(), "multipart/");
 	}
 
 	@Override
 	public MultipartHttpServletRequest resolveMultipart(HttpServletRequest request) throws MultipartException {
+		// 创建 StandardMultipartHttpServletRequest
 		return new StandardMultipartHttpServletRequest(request, this.resolveLazily);
 	}
 
@@ -94,13 +99,13 @@ public class StandardServletMultipartResolver implements MultipartResolver {
 			// To be on the safe side: explicitly delete the parts,
 			// but only actual file parts (for Resin compatibility)
 			try {
+				// 删除临时的 Part
 				for (Part part : request.getParts()) {
 					if (request.getFile(part.getName()) != null) {
 						part.delete();
 					}
 				}
-			}
-			catch (Throwable ex) {
+			} catch (Throwable ex) {
 				LogFactory.getLog(getClass()).warn("Failed to perform cleanup of multipart items", ex);
 			}
 		}

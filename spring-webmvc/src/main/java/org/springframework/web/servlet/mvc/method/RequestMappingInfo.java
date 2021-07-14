@@ -16,12 +16,6 @@
 
 package org.springframework.web.servlet.mvc.method;
 
-import java.util.List;
-import java.util.Set;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -31,20 +25,17 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.handler.AbstractHandlerMapping;
-import org.springframework.web.servlet.mvc.condition.ConsumesRequestCondition;
-import org.springframework.web.servlet.mvc.condition.HeadersRequestCondition;
-import org.springframework.web.servlet.mvc.condition.ParamsRequestCondition;
-import org.springframework.web.servlet.mvc.condition.PathPatternsRequestCondition;
-import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
-import org.springframework.web.servlet.mvc.condition.ProducesRequestCondition;
-import org.springframework.web.servlet.mvc.condition.RequestCondition;
-import org.springframework.web.servlet.mvc.condition.RequestConditionHolder;
-import org.springframework.web.servlet.mvc.condition.RequestMethodsRequestCondition;
+import org.springframework.web.servlet.mvc.condition.*;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.ServletRequestPathUtils;
 import org.springframework.web.util.UrlPathHelper;
 import org.springframework.web.util.pattern.PathPattern;
 import org.springframework.web.util.pattern.PathPatternParser;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Request mapping information. A composite for the the following conditions:
@@ -81,26 +72,48 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
 	private static final RequestConditionHolder EMPTY_CUSTOM = new RequestConditionHolder(null);
 
-
+	/**
+	 * name
+	 */
 	@Nullable
 	private final String name;
 
+
 	@Nullable
 	private final PathPatternsRequestCondition pathPatternsCondition;
-
+	/**
+	 * 请求路径的条件
+	 */
 	@Nullable
 	private final PatternsRequestCondition patternsCondition;
 
+	/**
+	 * 请求方法的条件
+	 */
 	private final RequestMethodsRequestCondition methodsCondition;
 
+	/**
+	 * 参数的条件
+	 */
 	private final ParamsRequestCondition paramsCondition;
 
+	/**
+	 * 请求头的条件
+	 */
 	private final HeadersRequestCondition headersCondition;
 
+	/**
+	 * 可消费的 Content-Type 的条件
+	 */
 	private final ConsumesRequestCondition consumesCondition;
 
+	/**
+	 * 可生产的 Content-Type 的条件
+	 */
 	private final ProducesRequestCondition producesCondition;
-
+	/**
+	 * 自定义的条件
+	 */
 	private final RequestConditionHolder customConditionHolder;
 
 	private final int hashCode;
@@ -108,14 +121,15 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
 	/**
 	 * Full constructor with a mapping name.
+	 *
 	 * @deprecated as of 5.3 in favor using {@link RequestMappingInfo.Builder} via
 	 * {@link #paths(String...)}.
 	 */
 	@Deprecated
 	public RequestMappingInfo(@Nullable String name, @Nullable PatternsRequestCondition patterns,
-			@Nullable RequestMethodsRequestCondition methods, @Nullable ParamsRequestCondition params,
-			@Nullable HeadersRequestCondition headers, @Nullable ConsumesRequestCondition consumes,
-			@Nullable ProducesRequestCondition produces, @Nullable RequestCondition<?> custom) {
+							  @Nullable RequestMethodsRequestCondition methods, @Nullable ParamsRequestCondition params,
+							  @Nullable HeadersRequestCondition headers, @Nullable ConsumesRequestCondition consumes,
+							  @Nullable ProducesRequestCondition produces, @Nullable RequestCondition<?> custom) {
 
 		this(name, null,
 				(patterns != null ? patterns : EMPTY_PATTERNS),
@@ -129,20 +143,22 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
 	/**
 	 * Create an instance with the given conditions.
+	 *
 	 * @deprecated as of 5.3 in favor using {@link RequestMappingInfo.Builder} via
 	 * {@link #paths(String...)}.
 	 */
 	@Deprecated
 	public RequestMappingInfo(@Nullable PatternsRequestCondition patterns,
-			@Nullable RequestMethodsRequestCondition methods, @Nullable ParamsRequestCondition params,
-			@Nullable HeadersRequestCondition headers, @Nullable ConsumesRequestCondition consumes,
-			@Nullable ProducesRequestCondition produces, @Nullable RequestCondition<?> custom) {
+							  @Nullable RequestMethodsRequestCondition methods, @Nullable ParamsRequestCondition params,
+							  @Nullable HeadersRequestCondition headers, @Nullable ConsumesRequestCondition consumes,
+							  @Nullable ProducesRequestCondition produces, @Nullable RequestCondition<?> custom) {
 
 		this(null, patterns, methods, params, headers, consumes, produces, custom);
 	}
 
 	/**
 	 * Re-create a RequestMappingInfo with the given custom request condition.
+	 *
 	 * @deprecated since 5.3 in favor of using {@link #addCustomCondition(RequestCondition)}.
 	 */
 	@Deprecated
@@ -152,11 +168,11 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	}
 
 	private RequestMappingInfo(@Nullable String name,
-			@Nullable PathPatternsRequestCondition pathPatternsCondition,
-			@Nullable PatternsRequestCondition patternsCondition,
-			RequestMethodsRequestCondition methodsCondition, ParamsRequestCondition paramsCondition,
-			HeadersRequestCondition headersCondition, ConsumesRequestCondition consumesCondition,
-			ProducesRequestCondition producesCondition, RequestConditionHolder customCondition) {
+							   @Nullable PathPatternsRequestCondition pathPatternsCondition,
+							   @Nullable PatternsRequestCondition patternsCondition,
+							   RequestMethodsRequestCondition methodsCondition, ParamsRequestCondition paramsCondition,
+							   HeadersRequestCondition headersCondition, ConsumesRequestCondition consumesCondition,
+							   ProducesRequestCondition producesCondition, RequestConditionHolder customCondition) {
 
 		Assert.isTrue(pathPatternsCondition != null || patternsCondition != null,
 				"Neither PathPatterns nor String patterns condition");
@@ -191,8 +207,9 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	 * {@link AbstractHandlerMapping#usesPathPatterns() enabled}.
 	 * <p>This is mutually exclusive with {@link #getPatternsCondition()} such
 	 * that when one returns {@code null} the other one returns an instance.
-	 * @since 5.3
+	 *
 	 * @see #getActivePatternsCondition()
+	 * @since 5.3
 	 */
 	@Nullable
 	public PathPatternsRequestCondition getPathPatternsCondition() {
@@ -213,17 +230,16 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	/**
 	 * Returns either {@link #getPathPatternsCondition()} or
 	 * {@link #getPatternsCondition()} depending on which is not null.
+	 *
 	 * @since 5.3
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> RequestCondition<T> getActivePatternsCondition() {
 		if (this.pathPatternsCondition != null) {
 			return (RequestCondition<T>) this.pathPatternsCondition;
-		}
-		else if (this.patternsCondition != null) {
+		} else if (this.patternsCondition != null) {
 			return (RequestCondition<T>) this.patternsCondition;
-		}
-		else {
+		} else {
 			// Already checked in the constructor...
 			throw new IllegalStateException();
 		}
@@ -231,6 +247,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
 	/**
 	 * Return the mapping paths that are not patterns.
+	 *
 	 * @since 5.3
 	 */
 	public Set<String> getDirectPaths() {
@@ -243,6 +260,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	/**
 	 * Return the patterns for the {@link #getActivePatternsCondition() active}
 	 * patterns condition as Strings.
+	 *
 	 * @since 5.3
 	 */
 	public Set<String> getPatternValues() {
@@ -303,6 +321,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	/**
 	 * Create a new instance based on the current one, also adding the given
 	 * custom condition.
+	 *
 	 * @param customCondition the custom condition to add
 	 * @since 5.3
 	 */
@@ -316,6 +335,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	 * Combine "this" request mapping info (i.e. the current instance) with
 	 * another request mapping info instance.
 	 * <p>Example: combine type- and method-level request mappings.
+	 *
 	 * @return a new request mapping info instance; never {@code null}
 	 */
 	@Override
@@ -346,11 +366,9 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 		if (this.name != null && other.name != null) {
 			String separator = RequestMappingInfoHandlerMethodMappingNamingStrategy.SEPARATOR;
 			return this.name + separator + other.name;
-		}
-		else if (this.name != null) {
+		} else if (this.name != null) {
 			return this.name;
-		}
-		else {
+		} else {
 			return other.name;
 		}
 	}
@@ -362,11 +380,13 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	 * <p>For example the returned instance may contain the subset of URL
 	 * patterns that match to the current request, sorted with best matching
 	 * patterns on top.
+	 *
 	 * @return a new instance in case of a match; or {@code null} otherwise
 	 */
 	@Override
 	@Nullable
 	public RequestMappingInfo getMatchingCondition(HttpServletRequest request) {
+		// 匹配 methodsCondition、paramsCondition、headersCondition、consumesCondition、producesCondition
 		RequestMethodsRequestCondition methods = this.methodsCondition.getMatchingCondition(request);
 		if (methods == null) {
 			return null;
@@ -405,6 +425,9 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 		if (custom == null) {
 			return null;
 		}
+
+		// 创建匹配的 RequestMappingInfo 对象。
+		// 为什么要创建 RequestMappingInfo 对象呢？因为当前 RequestMappingInfo 对象，一个 methodsCondition 可以配置 GET、POST、DELETE 等等条件，但是实际就匹配一个请求类型，此时 methods 只代表其匹配的那个。
 		return new RequestMappingInfo(
 				this.name, pathPatterns, patterns, methods, params, headers, consumes, produces, custom);
 	}
@@ -420,37 +443,45 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	public int compareTo(RequestMappingInfo other, HttpServletRequest request) {
 		int result;
 		// Automatic vs explicit HTTP HEAD mapping
+		// 针对 HEAD 请求方法，特殊处理
 		if (HttpMethod.HEAD.matches(request.getMethod())) {
 			result = this.methodsCondition.compareTo(other.getMethodsCondition(), request);
 			if (result != 0) {
 				return result;
 			}
 		}
+		// 比较 patternsCondition
 		result = getActivePatternsCondition().compareTo(other.getActivePatternsCondition(), request);
 		if (result != 0) {
 			return result;
 		}
+		// 比较 paramsCondition
 		result = this.paramsCondition.compareTo(other.getParamsCondition(), request);
 		if (result != 0) {
 			return result;
 		}
+		// 比较 headersCondition
 		result = this.headersCondition.compareTo(other.getHeadersCondition(), request);
 		if (result != 0) {
 			return result;
 		}
+		// 比较 consumesCondition
 		result = this.consumesCondition.compareTo(other.getConsumesCondition(), request);
 		if (result != 0) {
 			return result;
 		}
+		// 比较 producesCondition
 		result = this.producesCondition.compareTo(other.getProducesCondition(), request);
 		if (result != 0) {
 			return result;
 		}
+		// 比较 methodsCondition
 		// Implicit (no method) vs explicit HTTP method mappings
 		result = this.methodsCondition.compareTo(other.getMethodsCondition(), request);
 		if (result != 0) {
 			return result;
 		}
+		// 比较 customConditionHolder
 		result = this.customConditionHolder.compareTo(other.customConditionHolder, request);
 		if (result != 0) {
 			return result;
@@ -526,6 +557,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
 	/**
 	 * Create a new {@code RequestMappingInfo.Builder} with the given paths.
+	 *
 	 * @param paths the paths to use
 	 * @since 4.2
 	 */
@@ -536,6 +568,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
 	/**
 	 * Defines a builder for creating a RequestMappingInfo.
+	 *
 	 * @since 4.2
 	 */
 	public interface Builder {
@@ -694,8 +727,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 				pathPatterns = (ObjectUtils.isEmpty(this.paths) ?
 						EMPTY_PATH_PATTERNS :
 						new PathPatternsRequestCondition(this.options.patternParser, this.paths));
-			}
-			else {
+			} else {
 				patterns = (ObjectUtils.isEmpty(this.paths) ?
 						EMPTY_PATTERNS :
 						new PatternsRequestCondition(
@@ -728,8 +760,9 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	 * Container for configuration options used for request mapping purposes.
 	 * Such configuration is required to create RequestMappingInfo instances but
 	 * is typically used across all RequestMappingInfo instances.
-	 * @since 4.2
+	 *
 	 * @see Builder#options
+	 * @since 4.2
 	 */
 	public static class BuilderConfiguration {
 
@@ -755,6 +788,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 		 * <p><strong>Note:</strong> This property is mutually exclusive with
 		 * {@link #setPathMatcher(PathMatcher)}.
 		 * <p>By default this is not enabled.
+		 *
 		 * @since 5.3
 		 */
 		public void setPatternParser(@Nullable PathPatternParser patternParser) {
@@ -764,6 +798,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 		/**
 		 * Return the {@link #setPatternParser(PathPatternParser) configured}
 		 * {@code PathPatternParser}, or {@code null}.
+		 *
 		 * @since 5.3
 		 */
 		@Nullable
@@ -774,9 +809,10 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 		/**
 		 * Set a custom UrlPathHelper to use for the PatternsRequestCondition.
 		 * <p>By default this is not set.
+		 *
+		 * @since 4.2.8
 		 * @deprecated as of 5.3, the path is resolved externally and obtained with
 		 * {@link ServletRequestPathUtils#getCachedPathValue(ServletRequest)}
-		 * @since 4.2.8
 		 */
 		@Deprecated
 		public void setUrlPathHelper(@Nullable UrlPathHelper urlPathHelper) {
@@ -784,6 +820,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
 		/**
 		 * Return the configured UrlPathHelper.
+		 *
 		 * @deprecated as of 5.3, the path is resolved externally and obtained with
 		 * {@link ServletRequestPathUtils#getCachedPathValue(ServletRequest)};
 		 * this method always returns {@link UrlPathHelper#defaultInstance}.
@@ -828,6 +865,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 		/**
 		 * Set whether to apply suffix pattern matching in PatternsRequestCondition.
 		 * <p>By default this is set to 'false'.
+		 *
 		 * @see #setRegisteredSuffixPatternMatch(boolean)
 		 * @deprecated as of 5.2.4. See deprecation note on
 		 * {@link RequestMappingHandlerMapping#setUseSuffixPatternMatch(boolean)}.
@@ -839,6 +877,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
 		/**
 		 * Return whether to apply suffix pattern matching in PatternsRequestCondition.
+		 *
 		 * @deprecated as of 5.2.4. See deprecation note on
 		 * {@link RequestMappingHandlerMapping#setUseSuffixPatternMatch(boolean)}.
 		 */
@@ -853,6 +892,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 		 * {@code suffixPatternMatch=true} and requires that a
 		 * {@link #setContentNegotiationManager} is also configured in order to
 		 * obtain the registered file extensions.
+		 *
 		 * @deprecated as of 5.2.4. See class-level note in
 		 * {@link RequestMappingHandlerMapping} on the deprecation of path
 		 * extension config options.
@@ -866,6 +906,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 		/**
 		 * Return whether suffix pattern matching should be restricted to registered
 		 * file extensions only.
+		 *
 		 * @deprecated as of 5.2.4. See class-level note in
 		 * {@link RequestMappingHandlerMapping} on the deprecation of path
 		 * extension config options.
@@ -879,6 +920,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 		 * Return the file extensions to use for suffix pattern matching. If
 		 * {@code registeredSuffixPatternMatch=true}, the extensions are obtained
 		 * from the configured {@code contentNegotiationManager}.
+		 *
 		 * @deprecated as of 5.2.4. See class-level note in
 		 * {@link RequestMappingHandlerMapping} on the deprecation of path
 		 * extension config options.

@@ -16,11 +16,12 @@
 
 package org.springframework.web.servlet;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.lang.Nullable;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
+ * 请求到视图名的转换器接口。
  * Strategy interface for translating an incoming
  * {@link javax.servlet.http.HttpServletRequest} into a
  * logical view name when no view name is explicitly supplied.
@@ -32,9 +33,11 @@ import org.springframework.lang.Nullable;
 public interface RequestToViewNameTranslator {
 
 	/**
+	 * 根据请求获得其视图名。
 	 * Translate the given {@link HttpServletRequest} into a view name.
+	 *
 	 * @param request the incoming {@link HttpServletRequest} providing
-	 * the context from which a view name is to be resolved
+	 *                the context from which a view name is to be resolved
 	 * @return the view name, or {@code null} if no default found
 	 * @throws Exception if view name translation fails
 	 */

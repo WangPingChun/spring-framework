@@ -16,23 +16,16 @@
 
 package org.springframework.web.servlet.mvc.condition;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.DispatcherType;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.cors.CorsUtils;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 /**
  * A logical disjunction (' || ') request condition that matches a request
@@ -44,7 +37,9 @@ import org.springframework.web.cors.CorsUtils;
  */
 public final class RequestMethodsRequestCondition extends AbstractRequestCondition<RequestMethodsRequestCondition> {
 
-	/** Per HTTP method cache to return ready instances from getMatchingCondition. */
+	/**
+	 * Per HTTP method cache to return ready instances from getMatchingCondition.
+	 */
 	private static final Map<String, RequestMethodsRequestCondition> requestMethodConditionCache;
 
 	static {
@@ -54,14 +49,17 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 		}
 	}
 
-
+	/**
+	 * RequestMethod 集合
+	 */
 	private final Set<RequestMethod> methods;
 
 
 	/**
 	 * Create a new instance with the given request methods.
+	 *
 	 * @param requestMethods 0 or more HTTP request methods;
-	 * if, 0 the condition will match to every request
+	 *                       if, 0 the condition will match to every request
 	 */
 	public RequestMethodsRequestCondition(RequestMethod... requestMethods) {
 		this.methods = (ObjectUtils.isEmpty(requestMethods) ?
@@ -101,11 +99,9 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 	public RequestMethodsRequestCondition combine(RequestMethodsRequestCondition other) {
 		if (isEmpty() && other.isEmpty()) {
 			return this;
-		}
-		else if (other.isEmpty()) {
+		} else if (other.isEmpty()) {
 			return this;
-		}
-		else if (isEmpty()) {
+		} else if (isEmpty()) {
 			return other;
 		}
 		Set<RequestMethod> set = new LinkedHashSet<>(this.methods);
@@ -116,6 +112,7 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 	/**
 	 * Check if any of the HTTP request methods match the given request and
 	 * return an instance that contains the matching HTTP request method only.
+	 *
 	 * @param request the current request
 	 * @return the same instance if the condition is empty (unless the request
 	 * method is HTTP OPTIONS), a new condition with the matched request method,
@@ -128,7 +125,7 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 		if (CorsUtils.isPreFlightRequest(request)) {
 			return matchPreFlight(request);
 		}
-
+		// 空的情况下，就返回自身
 		if (getMethods().isEmpty()) {
 			if (RequestMethod.OPTIONS.name().equals(request.getMethod()) &&
 					!DispatcherType.ERROR.equals(request.getDispatcherType())) {
@@ -137,7 +134,7 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 			}
 			return this;
 		}
-
+		// 非空，逐个匹配
 		return matchRequestMethod(request.getMethod());
 	}
 
@@ -166,8 +163,7 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 			if (requestMethod.equals(RequestMethod.HEAD) && getMethods().contains(RequestMethod.GET)) {
 				return requestMethodConditionCache.get(HttpMethod.GET.name());
 			}
-		}
-		catch (IllegalArgumentException ex) {
+		} catch (IllegalArgumentException ex) {
 			// Custom request method
 		}
 		return null;
@@ -188,12 +184,10 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 	public int compareTo(RequestMethodsRequestCondition other, HttpServletRequest request) {
 		if (other.methods.size() != this.methods.size()) {
 			return other.methods.size() - this.methods.size();
-		}
-		else if (this.methods.size() == 1) {
+		} else if (this.methods.size() == 1) {
 			if (this.methods.contains(RequestMethod.HEAD) && other.methods.contains(RequestMethod.GET)) {
 				return -1;
-			}
-			else if (this.methods.contains(RequestMethod.GET) && other.methods.contains(RequestMethod.HEAD)) {
+			} else if (this.methods.contains(RequestMethod.GET) && other.methods.contains(RequestMethod.HEAD)) {
 				return 1;
 			}
 		}

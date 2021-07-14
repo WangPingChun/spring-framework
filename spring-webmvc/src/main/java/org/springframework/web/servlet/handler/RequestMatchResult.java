@@ -16,13 +16,13 @@
 
 package org.springframework.web.servlet.handler;
 
-import java.util.Map;
-
 import org.springframework.http.server.PathContainer;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.util.pattern.PathPattern;
+
+import java.util.Map;
 
 /**
  * Container for the result from request pattern matching via
@@ -37,24 +37,34 @@ public class RequestMatchResult {
 	@Nullable
 	private final PathPattern pathPattern;
 
+
 	@Nullable
 	private final PathContainer lookupPathContainer;
 
-
+	/**
+	 * 匹配上的路径
+	 */
 	@Nullable
 	private final String pattern;
 
+	/**
+	 * 被匹配的路径
+	 */
 	@Nullable
 	private final String lookupPath;
 
+	/**
+	 * 路径匹配器
+	 */
 	@Nullable
 	private final PathMatcher pathMatcher;
 
 
 	/**
 	 * Create an instance with the matched {@code PathPattern}.
+	 *
 	 * @param pathPattern the pattern that was matched
-	 * @param lookupPath the mapping path
+	 * @param lookupPath  the mapping path
 	 * @since 5.3
 	 */
 	public RequestMatchResult(PathPattern pathPattern, PathContainer lookupPath) {
@@ -72,8 +82,9 @@ public class RequestMatchResult {
 
 	/**
 	 * Create an instance with the matched String pattern.
-	 * @param pattern the pattern that was matched, possibly with a '/' appended
-	 * @param lookupPath the mapping path
+	 *
+	 * @param pattern     the pattern that was matched, possibly with a '/' appended
+	 * @param lookupPath  the mapping path
 	 * @param pathMatcher the PathMatcher instance used for the match
 	 */
 	public RequestMatchResult(String pattern, String lookupPath, PathMatcher pathMatcher) {
@@ -92,6 +103,7 @@ public class RequestMatchResult {
 	/**
 	 * Extract URI template variables from the matching pattern as defined in
 	 * {@link PathMatcher#extractUriTemplateVariables}.
+	 *
 	 * @return a map with URI template variables
 	 */
 	@SuppressWarnings("ConstantConditions")

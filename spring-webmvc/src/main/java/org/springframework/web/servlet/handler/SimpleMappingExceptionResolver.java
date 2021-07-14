@@ -16,18 +16,13 @@
 
 package org.springframework.web.servlet.handler;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.WebUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 /**
  * {@link org.springframework.web.servlet.HandlerExceptionResolver} implementation
@@ -40,29 +35,54 @@ import org.springframework.web.util.WebUtils;
  * @author Juergen Hoeller
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
- * @since 22.11.2003
  * @see org.springframework.web.servlet.DispatcherServlet
+ * @since 22.11.2003
  */
 public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionResolver {
 
-	/** The default name of the exception attribute: "exception". */
+	/**
+	 * The default name of the exception attribute: "exception".
+	 */
 	public static final String DEFAULT_EXCEPTION_ATTRIBUTE = "exception";
 
-
+	/**
+	 * 异常的视图映射
+	 * <p>
+	 * KEY：异常的全类名
+	 * VALUE：视图名
+	 */
 	@Nullable
 	private Properties exceptionMappings;
 
+	/**
+	 * 排除的异常的数组
+	 */
 	@Nullable
 	private Class<?>[] excludedExceptions;
 
+	/**
+	 * 默认视图名
+	 */
 	@Nullable
 	private String defaultErrorView;
 
+	/**
+	 * 默认的状态码
+	 */
 	@Nullable
 	private Integer defaultStatusCode;
 
+	/**
+	 * 状态码的映射
+	 * <p>
+	 * KEY：视图名
+	 * VALUE：状态码
+	 */
 	private Map<String, Integer> statusCodes = new HashMap<>();
 
+	/**
+	 * 异常设置到 {@link ModelAndView} 的属性名
+	 */
 	@Nullable
 	private String exceptionAttribute = DEFAULT_EXCEPTION_ATTRIBUTE;
 
@@ -78,8 +98,9 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	 * "java.lang.Exception" would be correct if "Exception" was meant to define a rule for all
 	 * checked exceptions. With more unusual exception names such as "BaseBusinessException"
 	 * there's no need to use a FQN.
+	 *
 	 * @param mappings exception patterns (can also be fully qualified class names) as keys,
-	 * and error view names as values
+	 *                 and error view names as values
 	 */
 	public void setExceptionMappings(Properties mappings) {
 		this.exceptionMappings = mappings;
@@ -89,6 +110,7 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	 * Set one or more exceptions to be excluded from the exception mappings.
 	 * Excluded exceptions are checked first and if one of them equals the actual
 	 * exception, the exception will remain unresolved.
+	 *
 	 * @param excludedExceptions one or more excluded exception types
 	 */
 	public void setExcludedExceptions(Class<?>... excludedExceptions) {
@@ -111,10 +133,11 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	 * It will not be set for an include request, since the HTTP status cannot be modified
 	 * from within an include.
 	 * <p>If not specified, the default status code will be applied.
+	 *
 	 * @see #setDefaultStatusCode(int)
 	 */
 	public void setStatusCodes(Properties statusCodes) {
-		for (Enumeration<?> enumeration = statusCodes.propertyNames(); enumeration.hasMoreElements();) {
+		for (Enumeration<?> enumeration = statusCodes.propertyNames(); enumeration.hasMoreElements(); ) {
 			String viewName = (String) enumeration.nextElement();
 			Integer statusCode = Integer.valueOf(statusCodes.getProperty(viewName));
 			this.statusCodes.put(viewName, statusCode);
@@ -145,8 +168,9 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	 * from within an include.
 	 * <p>If not specified, no status code will be applied, either leaving this to the
 	 * controller or view, or keeping the servlet engine's default of 200 (OK).
+	 *
 	 * @param defaultStatusCode the HTTP status code value, for example 500
-	 * ({@link HttpServletResponse#SC_INTERNAL_SERVER_ERROR}) or 404 ({@link HttpServletResponse#SC_NOT_FOUND})
+	 *                          ({@link HttpServletResponse#SC_INTERNAL_SERVER_ERROR}) or 404 ({@link HttpServletResponse#SC_NOT_FOUND})
 	 * @see #setStatusCodes(Properties)
 	 */
 	public void setDefaultStatusCode(int defaultStatusCode) {
@@ -158,6 +182,7 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	 * Default is "exception".
 	 * <p>This can be either set to a different attribute name or to {@code null}
 	 * for not exposing an exception attribute at all.
+	 *
 	 * @see #DEFAULT_EXCEPTION_ATTRIBUTE
 	 */
 	public void setExceptionAttribute(@Nullable String exceptionAttribute) {
@@ -172,11 +197,12 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	 * Note that this template method will be invoked <i>after</i> checking whether this
 	 * resolved applies ("mappedHandlers" etc), so an implementation may simply proceed
 	 * with its actual exception handling.
-	 * @param request current HTTP request
+	 *
+	 * @param request  current HTTP request
 	 * @param response current HTTP response
-	 * @param handler the executed handler, or {@code null} if none chosen at the time
-	 * of the exception (for example, if multipart resolution failed)
-	 * @param ex the exception that got thrown during handler execution
+	 * @param handler  the executed handler, or {@code null} if none chosen at the time
+	 *                 of the exception (for example, if multipart resolution failed)
+	 * @param ex       the exception that got thrown during handler execution
 	 * @return a corresponding {@code ModelAndView} to forward to,
 	 * or {@code null} for default processing in the resolution chain
 	 */
@@ -186,17 +212,20 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 			HttpServletRequest request, HttpServletResponse response, @Nullable Object handler, Exception ex) {
 
 		// Expose ModelAndView for chosen error view.
+		// 获得异常对应的视图
 		String viewName = determineViewName(ex, request);
 		if (viewName != null) {
 			// Apply HTTP status code for error views, if specified.
 			// Only apply it if we're processing a top-level request.
+			// 获得视图对应的状态码
 			Integer statusCode = determineStatusCode(request, viewName);
 			if (statusCode != null) {
+				// 设置状态码到响应
 				applyStatusCodeIfPossible(request, response, statusCode);
 			}
+			// 创建 ModelAndView 对象，并返回
 			return getModelAndView(viewName, ex, request);
-		}
-		else {
+		} else {
 			return null;
 		}
 	}
@@ -206,13 +235,15 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	 * {@link #setExcludedExceptions(Class[]) "excludedExecptions"}, then searching the
 	 * {@link #setExceptionMappings "exceptionMappings"}, and finally using the
 	 * {@link #setDefaultErrorView "defaultErrorView"} as a fallback.
-	 * @param ex the exception that got thrown during handler execution
+	 *
+	 * @param ex      the exception that got thrown during handler execution
 	 * @param request current HTTP request (useful for obtaining metadata)
 	 * @return the resolved view name, or {@code null} if excluded or none found
 	 */
 	@Nullable
 	protected String determineViewName(Exception ex, HttpServletRequest request) {
 		String viewName = null;
+		// 如果是排除的异常，返回 null
 		if (this.excludedExceptions != null) {
 			for (Class<?> excludedEx : this.excludedExceptions) {
 				if (excludedEx.equals(ex.getClass())) {
@@ -221,10 +252,12 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 			}
 		}
 		// Check for specific exception mappings.
+		// 获得异常对应的视图
 		if (this.exceptionMappings != null) {
 			viewName = findMatchingViewName(this.exceptionMappings, ex);
 		}
 		// Return default error view else, if defined.
+		// 如果获得不到视图，并且有默认视图，则使用默认视图
 		if (viewName == null && this.defaultErrorView != null) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Resolving to default view '" + this.defaultErrorView + "'");
@@ -236,8 +269,9 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 
 	/**
 	 * Find a matching view name in the given exception mappings.
+	 *
 	 * @param exceptionMappings mappings between exception class names and error view names
-	 * @param ex the exception that got thrown during handler execution
+	 * @param ex                the exception that got thrown during handler execution
 	 * @return the view name, or {@code null} if none found
 	 * @see #setExceptionMappings
 	 */
@@ -246,9 +280,12 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 		String viewName = null;
 		String dominantMapping = null;
 		int deepest = Integer.MAX_VALUE;
-		for (Enumeration<?> names = exceptionMappings.propertyNames(); names.hasMoreElements();) {
+		// 遍历 exceptionMappings 数组，寻找最匹配的视图名
+		for (Enumeration<?> names = exceptionMappings.propertyNames(); names.hasMoreElements(); ) {
 			String exceptionMapping = (String) names.nextElement();
+			// 获得层级
 			int depth = getDepth(exceptionMapping, ex);
+			// 如果层级更低，则使用它
 			if (depth >= 0 && (depth < deepest || (depth == deepest &&
 					dominantMapping != null && exceptionMapping.length() > dominantMapping.length()))) {
 				deepest = depth;
@@ -256,6 +293,7 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 				viewName = exceptionMappings.getProperty(exceptionMapping);
 			}
 		}
+		// 返回 viewName
 		if (viewName != null && logger.isDebugEnabled()) {
 			logger.debug("Resolving to view '" + viewName + "' based on mapping [" + dominantMapping + "]");
 		}
@@ -272,14 +310,17 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	}
 
 	private int getDepth(String exceptionMapping, Class<?> exceptionClass, int depth) {
+		// 匹配上
 		if (exceptionClass.getName().contains(exceptionMapping)) {
 			// Found it!
 			return depth;
 		}
+		// 未匹配上
 		// If we've gone as far as we can go and haven't found it...
 		if (exceptionClass == Throwable.class) {
 			return -1;
 		}
+		// 递归父类，继续匹配
 		return getDepth(exceptionMapping, exceptionClass.getSuperclass(), depth + 1);
 	}
 
@@ -289,7 +330,8 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	 * {@link #setStatusCodes(Properties) statusCodes} property), or falls back to the
 	 * {@link #setDefaultStatusCode defaultStatusCode} if there is no match.
 	 * <p>Override this in a custom subclass to customize this behavior.
-	 * @param request current HTTP request
+	 *
+	 * @param request  current HTTP request
 	 * @param viewName the name of the error view
 	 * @return the HTTP status code to use, or {@code null} for the servlet container's default
 	 * (200 in case of a standard error view)
@@ -298,17 +340,20 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	 */
 	@Nullable
 	protected Integer determineStatusCode(HttpServletRequest request, String viewName) {
+		// 从 statusCodes 中，获得视图名对应的状态码
 		if (this.statusCodes.containsKey(viewName)) {
 			return this.statusCodes.get(viewName);
 		}
+		// 获得不到，使用默认状态码
 		return this.defaultStatusCode;
 	}
 
 	/**
 	 * Apply the specified HTTP status code to the given response, if possible (that is,
 	 * if not executing within an include request).
-	 * @param request current HTTP request
-	 * @param response current HTTP response
+	 *
+	 * @param request    current HTTP request
+	 * @param response   current HTTP response
 	 * @param statusCode the status code to apply
 	 * @see #determineStatusCode
 	 * @see #setDefaultStatusCode
@@ -327,9 +372,10 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	/**
 	 * Return a ModelAndView for the given request, view name and exception.
 	 * <p>The default implementation delegates to {@link #getModelAndView(String, Exception)}.
+	 *
 	 * @param viewName the name of the error view
-	 * @param ex the exception that got thrown during handler execution
-	 * @param request current HTTP request (useful for obtaining metadata)
+	 * @param ex       the exception that got thrown during handler execution
+	 * @param request  current HTTP request (useful for obtaining metadata)
 	 * @return the ModelAndView instance
 	 */
 	protected ModelAndView getModelAndView(String viewName, Exception ex, HttpServletRequest request) {
@@ -340,8 +386,9 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	 * Return a ModelAndView for the given view name and exception.
 	 * <p>The default implementation adds the specified exception attribute.
 	 * Can be overridden in subclasses.
+	 *
 	 * @param viewName the name of the error view
-	 * @param ex the exception that got thrown during handler execution
+	 * @param ex       the exception that got thrown during handler execution
 	 * @return the ModelAndView instance
 	 * @see #setExceptionAttribute
 	 */
